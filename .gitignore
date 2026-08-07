@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.docx
+!**/templates/**/*.docx
+.DS_Store
+Thumbs.db
+.venv/
+venv/
+*.pre.json
+ReleaseNotes/
+.idea/
+.vscode/
