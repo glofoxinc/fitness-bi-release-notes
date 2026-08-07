@@ -8,7 +8,7 @@ SCRIPTS = (
     Path(__file__).parents[1]
     / ".cursor"
     / "skills"
-    / "fitness-bi-release-notes"
+    / "notebot"
     / "scripts"
 )
 sys.path.insert(0, str(SCRIPTS))

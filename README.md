@@ -1,11 +1,13 @@
-# Fitness BI Release Notes
+# NoteBot
 
-Cursor Agent Skill that generates Customize BI / Fitness BI **pre-deployment release notes** from Jira Fix Versions and writes a Word document matching the team template.
+Comic little release-notes buddy for the Customize BI / Fitness BI team.
 
-**Org:** [glofoxinc](https://github.com/glofoxinc)  
-**Skill path (in this repo):** `.cursor/skills/fitness-bi-release-notes/`
+**NoteBot** is a Cursor Agent Skill that builds **pre-deployment release notes** from Jira Fix Versions and writes a Word doc matching the team template.
 
-## What it does
+**Repo:** [glofoxinc/fitness-bi-release-notes](https://github.com/glofoxinc/fitness-bi-release-notes)  
+**Skill path:** `.cursor/skills/notebot/`
+
+## What NoteBot does
 
 1. Reads all Jira tickets on a Fix Version (deployment date, e.g. `2026.3.08.12`)
 2. Classifies **Analyze** (`AN`) vs **Custom** (`PIC`) and extracts client / report names
@@ -24,29 +26,27 @@ SharePoint auto-upload is planned; for now upload the generated `.docx` manually
 py -3 -m pip install python-docx
 ```
 
-4. Open **this repo** in Cursor (so the project skill is picked up)
+4. Open **this repo** in Cursor (so NoteBot is picked up)
 
 ## How to use
 
 In Cursor chat:
 
 ```text
-Generate release notes for Fix Version 2026.3.08.12
+NoteBot: generate release notes for Fix Version 2026.3.08.12
 ```
 
-Optional:
+Or simply:
 
 ```text
-Generate pre-deploy release notes for Fix Version 2026.3.08.12
+Generate release notes for Fix Version 2026.3.08.12
 ```
-
-The agent follows `.cursor/skills/fitness-bi-release-notes/SKILL.md`.
 
 ## Repo layout
 
 ```text
-.cursor/skills/fitness-bi-release-notes/
-  SKILL.md                 # Agent playbook
+.cursor/skills/notebot/
+  SKILL.md                 # NoteBot playbook
   config.json              # Defaults (team names, Jira cloud id, output dir)
   document-structure.md    # Doc sections + JSON schema
   scripts/
@@ -60,7 +60,7 @@ The agent follows `.cursor/skills/fitness-bi-release-notes/SKILL.md`.
 ## Team notes
 
 - Do **not** invent Deployment IDs, testers, or screenshots in pre-deploy mode
-- Custom client names are parsed from PIC ticket summaries (known clients listed in `normalize_tickets.py`)
+- Custom client names are parsed from PIC ticket summaries
 - Update `config.json` defaults if Release Owner / leadership names change
 
 ## License

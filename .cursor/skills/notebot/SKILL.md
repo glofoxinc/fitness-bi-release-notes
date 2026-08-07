@@ -1,14 +1,14 @@
 ---
-name: fitness-bi-release-notes
+name: notebot
 description: >-
-  Generates Fitness BI / Customize BI deployment release notes from Jira Fix
-  Version tickets, writes a Word document matching the team template, and
-  prepares SharePoint upload. Use when the user asks for release notes, Fix
-  Version deployment notes, pre-deploy release doc, or Automate release notes
-  from Jira (AN/PIC).
+  NoteBot — generates Fitness BI / Customize BI deployment release notes from
+  Jira Fix Version tickets, writes a Word document matching the team template,
+  and prepares SharePoint upload. Use when the user asks for NoteBot, release
+  notes, Fix Version deployment notes, pre-deploy release doc, or automate
+  release notes from Jira (AN/PIC).
 ---
 
-# Fitness BI Release Notes Agent
+# NoteBot
 
 ## Goal
 
@@ -22,6 +22,7 @@ For a given **Fix Version** (deployment date, e.g. `2026.3.08.12`):
 ## When to run
 
 User says things like:
+- "NoteBot: generate release notes for 2026.3.08.12"
 - "Generate release notes for 2026.3.08.12"
 - "Create pre-deploy release notes for Fix Version …"
 - "Automate release notes from Jira"

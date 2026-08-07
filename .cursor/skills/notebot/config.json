@@ -1,4 +1,5 @@
 {
+  "agent_name": "NoteBot",
   "jira_site": "https://abcfinancial.atlassian.net",
   "cloud_id": "5c639b1d-82c0-4932-96af-65d4921fcf57",
   "analyze_projects": ["AN"],
