@@ -17,6 +17,26 @@ KNOWN_CUSTOM_CLIENTS = [
     "FWBC",
 ]
 
+EXPLANATION_SUFFIXES = re.compile(
+    r"\s*\((?:new\s+)?(?:paginated\s+)?report\)\s*$",
+    re.IGNORECASE,
+)
+LEADING_ACTIONS = re.compile(
+    r"^(?:remove|delete|update|updates?\s+to|fix|add|change|modify|optimi[sz]e|"
+    r"enhance|create|replace|migrate|clean\s+up)\b[\s:–—-]*",
+    re.IGNORECASE,
+)
+NAMED_ASSET = re.compile(
+    r"\b(?:dashboard|reports?|semantic\s+model|data\s+model|dataset)\b",
+    re.IGNORECASE,
+)
+INLINE_EXPLANATION = re.compile(
+    r"^(.*?\b(?:dashboard|reports?|semantic\s+model|data\s+model|dataset))"
+    r"\s+((?:change|replac(?:e|ing)|pointing|updates?|fix(?:es)?|add(?:ing)?|"
+    r"remov(?:e|ing)|optimization|optimisation|enhancements?)\b.*)$",
+    re.IGNORECASE,
+)
+
 
 def classify_type(project_key: str) -> str:
     key = (project_key or "").upper()
@@ -28,13 +48,49 @@ def classify_type(project_key: str) -> str:
 
 
 def split_segments(text: str) -> list[str]:
-    """Split on spaced delimiters first; only fall back to bare hyphens
-    when no spaced delimiter exists (keeps names like 'E-agreements' intact)."""
+    """Split explanations on spaced delimiters, preserving hyphenated names."""
     text = (text or "").strip()
     parts = [p.strip() for p in re.split(r"\s+[-–—:]\s+", text) if p.strip()]
-    if len(parts) == 1:
-        parts = [p.strip() for p in re.split(r"\s*[-–—]\s*", text) if p.strip()]
     return parts
+
+
+def clean_asset_name(text: str) -> str:
+    """Remove change wording while preserving a named report/dashboard/model."""
+    value = EXPLANATION_SUFFIXES.sub("", (text or "").strip()).strip(" -–—:")
+    value = LEADING_ACTIONS.sub("", value).strip(" -–—:")
+
+    # "older class utilization dashboard" describes the age of the asset, not its name.
+    value = re.sub(r"^(?:the\s+)?older\s+", "", value, flags=re.IGNORECASE)
+
+    # An action title such as "Remove Jetts ... from Fitness BI Reporting" does
+    # not identify a particular report/dashboard/model.
+    if re.search(r"\bfrom\s+fitness\s+bi\s+reporting\b", value, re.IGNORECASE):
+        return ""
+    return value
+
+
+def report_name_and_description(text: str, typ: str) -> tuple[str, str]:
+    """Extract only the report/dashboard/model name plus separate explanation."""
+    segs = split_segments(text)
+    first = segs[0] if segs else (text or "").strip()
+    inline = INLINE_EXPLANATION.match(EXPLANATION_SUFFIXES.sub("", first).strip())
+    inline_desc = ""
+    if inline:
+        first, inline_desc = inline.group(1), inline.group(2)
+    report = clean_asset_name(first)
+    desc_parts = [inline_desc, *segs[1:]]
+    desc = " - ".join(part.strip() for part in desc_parts if part.strip())
+
+    if not report:
+        return ("All Reports" if typ == "Analyze" else ""), desc or first
+
+    # If an Analyze title starts as a change instruction and names no report,
+    # dashboard, model, or dataset, use the agreed fallback.
+    starts_with_action = bool(LEADING_ACTIONS.match(first))
+    if typ == "Analyze" and starts_with_action and not NAMED_ASSET.search(first):
+        return "All Reports", desc or first
+
+    return report, desc or report
 
 
 def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
@@ -48,9 +104,7 @@ def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
     if typ == "Analyze":
         if summary.lower().startswith("analyze"):
             summary = summary[len("analyze") :].lstrip(" -–—:\t")
-        segs = split_segments(summary)
-        report = segs[0] if segs else summary
-        desc = " - ".join(segs[1:]) if len(segs) > 1 else report
+        report, desc = report_name_and_description(summary, typ)
         return "Standard", report, desc
 
     # Custom: try known client name at start
@@ -63,14 +117,20 @@ def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
 
     segs = split_segments(summary)
     if client is None:
-        if segs and len(segs[0].split()) <= 3:
+        compact_prefix = re.match(r"^([A-Za-z0-9&]+)[-–—](.+)$", summary)
+        if compact_prefix:
+            client = compact_prefix.group(1).strip()
+            segs = split_segments(compact_prefix.group(2).strip())
+        elif segs and len(segs[0].split()) <= 3:
             client = segs[0]
             segs = segs[1:]
         else:
             client = "Unknown"
 
-    report = segs[0] if segs else summary
-    desc = " - ".join(segs[1:]) if len(segs) > 1 else report
+    remaining = " - ".join(segs) if segs else summary
+    report, desc = report_name_and_description(remaining, typ)
+    if not report:
+        report = clean_asset_name(remaining) or remaining
     return client, report, desc
 
 

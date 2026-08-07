@@ -99,10 +99,10 @@ Exclude epics/parents that are only containers **only if** they have no useful d
 | Type | Project `AN` → `Analyze`; Project `PIC` → `Custom`. If other projects appear, ask user. |
 | Client (Analyze) | `Standard` |
 | Client (Custom) | Prefix before ` - ` or `:` in summary (e.g. `Jetts - …` → Jetts). If missing, use `Unknown` and flag for user. |
-| Report | Remainder of summary after client prefix; clean trailing punctuation |
+| Report | **Only** the report, dashboard, semantic model, data model, or dataset name. Remove change instructions and explanations. For Analyze tickets with no identifiable named asset, use `All Reports`. |
 | Description | Prefer short highlight from summary; if summary is thin, first meaningful sentence of description (no huge tables/images) |
 | Parent | `parent.key` if present |
-| Link | `https://abcfinancial.atlassian.net/browse/{KEY}` |
+| Link | A real clickable hyperlink to `https://abcfinancial.atlassian.net/browse/{KEY}` (never plain URL text) |
 | Test by / Comments / Testing Status | Empty string for pre-deploy |
 
 Known custom clients from recent releases (not exhaustive): Jetts, Jazzercise, FIT4MOM, FWBC — still parse from summary, do not hard-limit.
@@ -124,6 +124,8 @@ Before handing to user:
 - Ticket count in Change Details matches Jira fetch
 - Every Custom row has a real client name (not Unknown) — call out Unknowns
 - Analyze rows show Client `Standard` and Type `Analyze`
+- Report cells contain only asset names; Analyze tickets without a named asset show `All Reports`
+- Every Link cell is a clickable Jira hyperlink
 - Deployment ID / Test by / Screenshots sections are empty placeholders
 - Filename: `Release Notes <VERSION>.docx`
 
@@ -142,7 +144,7 @@ Keep tone matching sample docs (plain, operational):
 - **Affected Clients → Analyze**: if any AN tickets → "All Analyze-based (Standard) clients"
 - **Custom Clients Summary**: short blurb + bullet list of distinct custom client names
 - **Standard & Custom Summary**: 1–2 sentences on usability / reports / custom enhancements
-- **Dashboards / Reports**: `{Client} - {Report}` lines
+- **Dashboards / Reports**: `{Client} - {Report}` lines, where Report is only the report/dashboard/model/dataset name—never an explanation
 
 Do not invent features not present on tickets.
 

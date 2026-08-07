@@ -11,6 +11,7 @@ from pathlib import Path
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx.shared import Inches, Pt
@@ -108,6 +109,42 @@ def set_cell_text(cell, text: str, bold=False):
     p = cell.paragraphs[0]
     run = p.add_run(text if text is not None else "")
     set_run_font(run, bold=bold, size=TABLE_SIZE)
+
+
+def set_cell_hyperlink(cell, url: str):
+    """Write a real clickable URL instead of plain text."""
+    cell.text = ""
+    if not url:
+        return
+
+    paragraph = cell.paragraphs[0]
+    relationship_id = paragraph.part.relate_to(url, RT.HYPERLINK, is_external=True)
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), relationship_id)
+
+    run = OxmlElement("w:r")
+    run_properties = OxmlElement("w:rPr")
+    run_fonts = OxmlElement("w:rFonts")
+    run_fonts.set(qn("w:ascii"), FONT_NAME)
+    run_fonts.set(qn("w:hAnsi"), FONT_NAME)
+    run_properties.append(run_fonts)
+
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), "0563C1")
+    run_properties.append(color)
+    underline = OxmlElement("w:u")
+    underline.set(qn("w:val"), "single")
+    run_properties.append(underline)
+    size = OxmlElement("w:sz")
+    size.set(qn("w:val"), str(TABLE_SIZE * 2))
+    run_properties.append(size)
+
+    text = OxmlElement("w:t")
+    text.text = url
+    run.append(run_properties)
+    run.append(text)
+    hyperlink.append(run)
+    paragraph._p.append(hyperlink)
 
 
 def shade_header_row(row):
@@ -270,7 +307,7 @@ def build_document(data: dict) -> Document:
                 t.get("testing_status", "") if mode == "post" else "",
             ]
         )
-    add_table(
+    change_table = add_table(
         doc,
         [
             "S.No",
@@ -287,6 +324,8 @@ def build_document(data: dict) -> Document:
         ],
         change_rows or [["", "", "", "", "", "", "", "", "", "", ""]],
     )
+    for row_index, ticket in enumerate(tickets, start=1):
+        set_cell_hyperlink(change_table.rows[row_index].cells[3], ticket.get("link", ""))
 
     add_section_title(doc, "Sanity Checklist After Production Deployment:")
     add_bullets(
@@ -318,7 +357,7 @@ def build_document(data: dict) -> Document:
                 t.get("notes", ""),
             ]
         )
-    add_table(
+    excluded_table = add_table(
         doc,
         [
             "S.No",
@@ -333,6 +372,8 @@ def build_document(data: dict) -> Document:
         ],
         excl_rows or [["", "", "", "", "", "", "", "", ""]],
     )
+    for row_index, ticket in enumerate(excluded, start=1):
+        set_cell_hyperlink(excluded_table.rows[row_index].cells[3], ticket.get("link", ""))
 
     return doc
 

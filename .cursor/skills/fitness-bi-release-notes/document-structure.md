@@ -15,7 +15,7 @@ Matches team sample: `Release Notes <VERSION>.docx` (e.g. `2026.3.08.05`).
    - Analyze Clients → All Analyze-based (Standard) clients (if any AN tickets)
    - Custom Clients Summary + client name list
 6. **Standard & Custom Summary** — short paragraph
-7. **Dashboards / Reports** — bullets `{Client} - {Report}`
+7. **Dashboards / Reports** — bullets `{Client} - {Report}` using only the report/dashboard/model/dataset name. Analyze tickets with no named asset use `All Reports`.
 8. **Deployment table** (scaffold only pre-deploy)
 
 | Client | Deployment Owner | Status | Deployment ID & Time |
@@ -29,6 +29,7 @@ Matches team sample: `Release Notes <VERSION>.docx` (e.g. `2026.3.08.05`).
 |---|---|---|---|---|---|---|---|---|---|---|
 
 Pre-deploy: last three columns empty.
+The Link column contains real clickable Jira hyperlinks. The Report column never contains change explanations.
 
 10. **Sanity Checklist After Production Deployment** — questions only, no Yes/No filled
 11. **Screenshots** — heading only
