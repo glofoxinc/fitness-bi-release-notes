@@ -342,7 +342,7 @@ def build_document(data: dict) -> Document:
     )
 
     add_section_title(doc, "Screenshots:")
-    add_body(doc, "(Add screenshots after production deployment.)")
+    # Heading only — team adds screenshots later; do not add placeholder text.
 
     add_section_title(doc, "Tickets Excluded from Deployment")
     excl_rows = []

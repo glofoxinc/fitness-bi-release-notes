@@ -45,7 +45,7 @@ User says things like:
 - Standard & Custom Summary
 - Dashboards / Reports list
 - Change Details: S.No, Ticket#, Parent, Link, Type, Client, Report, Description
-- Empty scaffolding for: Deployment table rows (clients only), Sanity checklist (unchecked), Screenshots header, Tickets Excluded table
+- Empty scaffolding for: Deployment table rows (clients only), Sanity checklist (unchecked), Screenshots heading only (no placeholder text), Tickets Excluded table (empty unless user explicitly asks to list excluded tickets)
 
 ### Team fills later (leave blank / TBD — do NOT invent)
 
@@ -54,9 +54,19 @@ User says things like:
 - Deployment ID & Time
 - Status (Done / etc.) after deploy
 - Test by / Comments / Testing Status
-- Screenshots
+- Screenshots (heading only in the generated doc)
 - Sanity checklist Yes/No answers
-- Tickets Excluded (unless user supplies a list)
+- Tickets Excluded — leave the table empty by default
+
+### Removing a ticket from deployment (prompt rules)
+
+If the user says to **remove / drop / exclude a ticket from deployment** (and nothing more):
+
+1. Omit that ticket from Key Highlights, Dashboards / Reports, Change Details, clients lists, and any other included sections
+2. Do **NOT** add it to **Tickets Excluded from Deployment**
+3. Leave the Excluded table empty (header + blank row only)
+
+Only if the user **explicitly** asks to list/record the removed ticket(s) in **Tickets Excluded from Deployment**, put them there (with Notes if provided).
 
 ## Workflow
 
@@ -131,7 +141,8 @@ Before handing to user:
 - Analyze rows show Client `Standard` and Type `Analyze`
 - Report cells contain only asset names; Analyze tickets without a named asset show `All Reports`
 - Every Link cell is a clickable Jira hyperlink
-- Deployment ID / Test by / Screenshots sections are empty placeholders
+- Deployment ID / Test by / Screenshots heading present with no placeholder text under Screenshots
+- Excluded table empty unless user explicitly asked to list removed tickets there
 - Filename: `Release Notes <VERSION>.docx`
 
 ### Step 6 — Deliver

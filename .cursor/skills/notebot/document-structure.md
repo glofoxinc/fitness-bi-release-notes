@@ -33,8 +33,8 @@ Pre-deploy: last three columns empty.
 The Link column contains real clickable Jira hyperlinks. The Report column never contains change explanations.
 
 10. **Sanity Checklist After Production Deployment** — questions only, no Yes/No filled
-11. **Screenshots** — heading only
-12. **Tickets Excluded from Deployment** — header + empty table (same columns as Change Details minus testing cols, plus Notes)
+11. **Screenshots** — heading only (no placeholder / bracket text underneath)
+12. **Tickets Excluded from Deployment** — header + empty table by default. Populate rows **only** when the user explicitly asks to list removed tickets there. A plain “remove ticket from deployment” prompt means omit from the main sections only — do not auto-fill this table.
 
 ## Fix Version → Release Date
 
