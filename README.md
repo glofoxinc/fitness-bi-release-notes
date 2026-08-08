@@ -59,9 +59,10 @@ Generate release notes for Fix Version 2026.3.08.12
 
 ## Team notes
 
+- Leave **Release Owner** blank unless the user provides a name for that deployment
 - Do **not** invent Deployment IDs, testers, or screenshots in pre-deploy mode
 - Custom client names are parsed from PIC ticket summaries
-- Update `config.json` defaults if Release Owner / leadership names change
+- Update `config.json` defaults if leadership names change
 
 ## License
 

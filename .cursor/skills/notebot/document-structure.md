@@ -8,7 +8,8 @@ Matches team sample: `Release Notes <VERSION>.docx` (e.g. `2026.3.08.05`).
 2. **Header block**
    - Version: `v{fix_version}`
    - Release Date: derived from Fix Version (`2026.3.08.05` → `05-August-2026`)
-   - Development Team, Release Owner, Senior Manager, Director, SVP, Environment (from config)
+   - Development Team, Senior Manager, Director, SVP, Environment (from config)
+   - Release Owner left blank for the team to fill per deployment
 3. **Release Summary** — short paragraph
 4. **Key Highlights** — bullets
 5. **Affected Clients**
@@ -56,7 +57,7 @@ Example: `2026.3.08.05` → `05-August-2026`
   "mode": "pre",
   "meta": {
     "development_team": "Customize BI Team",
-    "release_owner": "Lakshmi Narasimha",
+    "release_owner": "",
     "senior_manager": "Sushma Bhamidipati",
     "director": "Trent Vanest",
     "svp": "Rahul Das",

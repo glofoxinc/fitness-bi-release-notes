@@ -39,7 +39,8 @@ User says things like:
 ### Agent fills from Jira (always)
 
 - Version / Release Date (from Fix Version name)
-- Header defaults from config (team, owners, environment) — confirm with user if changed
+- Header defaults from config (team, senior manager, director, SVP, environment) — confirm with user if changed
+- **Release Owner** left blank (filled by the team per deployment)
 - Release Summary, Key Highlights, Affected Clients, Custom Clients list
 - Standard & Custom Summary
 - Dashboards / Reports list
@@ -48,6 +49,7 @@ User says things like:
 
 ### Team fills later (leave blank / TBD — do NOT invent)
 
+- Release Owner
 - Deployment Owner
 - Deployment ID & Time
 - Status (Done / etc.) after deploy
@@ -74,8 +76,10 @@ Release notes progress:
 
 Ask only if missing:
 - **Fix Version** string (required), e.g. `2026.3.08.12`
-- Optional overrides: Release Owner, Development Team
+- Optional override: Development Team
 - Mode: `pre` (default) vs `post` (only if user provides deploy/test extras)
+
+Do **not** default a Release Owner — leave that field blank unless the user explicitly provides a name.
 
 ### Step 2 — Fetch tickets
 
