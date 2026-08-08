@@ -14,7 +14,82 @@ SCRIPTS = (
 sys.path.insert(0, str(SCRIPTS))
 
 from generate_release_notes import build_document  # noqa: E402
-from normalize_tickets import split_client_report_desc  # noqa: E402
+from normalize_tickets import (  # noqa: E402
+    highlight_line,
+    normalize_issue,
+    split_client_report_desc,
+)
+
+
+def _issue(key, project, summary, parent=""):
+    fields = {"summary": summary, "project": {"key": project}}
+    if parent:
+        fields["parent"] = {"key": parent}
+    return {"key": key, "fields": fields}
+
+
+# Real fixVersion 2026.3.08.12 summaries -> (expected highlight, expected report)
+LIVE_TICKETS = [
+    (
+        _issue("AN-5359", "AN", "ABC Insights - Analyse - Course bookings"),
+        "Standard: Course bookings",
+        "Course bookings",
+    ),
+    (
+        _issue("AN-5396", "AN", "Analyze - Remove older class utilization dashboard"),
+        "Standard: Remove older class utilization dashboard",
+        "class utilization dashboard",
+    ),
+    (
+        _issue(
+            "AN-5468",
+            "AN",
+            "Insights Analyze- Remove Jetts Vasant Square Mall from Fitness BI Reporting",
+        ),
+        "Standard: Remove Jetts Vasant Square Mall from Fitness BI Reporting",
+        "All Reports",
+    ),
+    (
+        _issue("PIC-5407", "PIC", "XtremeFitness - Custom semantic model optimization"),
+        "XtremeFitness: Custom semantic model optimization",
+        "Custom semantic model",
+    ),
+    (
+        _issue(
+            "PIC-5673", "PIC", "Lift - ABC Customize - Medallia reports(New Paginated Report)"
+        ),
+        "Lift: Medallia reports (New Paginated Report)",
+        "Medallia reports",
+    ),
+    (
+        _issue(
+            "PIC-5924",
+            "PIC",
+            "Jazzercise - Class Participation Report - Event Details tab - "
+            "Weekly Class Counts updates needed",
+        ),
+        "Jazzercise: Class Participation Report - Event Details tab - "
+        "Weekly Class Counts updates needed",
+        "Class Participation Report",
+    ),
+]
+
+
+class KeyHighlightVsReportSeparationTests(unittest.TestCase):
+    def test_highlight_and_report_match_live_expectations(self):
+        for issue, expected_highlight, expected_report in LIVE_TICKETS:
+            row = normalize_issue(issue)
+            self.assertEqual(
+                row["highlight"], expected_highlight, msg=issue["key"]
+            )
+            self.assertEqual(row["report"], expected_report, msg=issue["key"])
+
+    def test_highlight_is_independent_of_report(self):
+        # Key Highlights keeps the fuller ticket info even when Report is name-only.
+        line = highlight_line(
+            "Analyze - Remove older class utilization dashboard", "Analyze"
+        )
+        self.assertEqual(line, "Standard: Remove older class utilization dashboard")
 
 
 class ReportNameExtractionTests(unittest.TestCase):

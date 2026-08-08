@@ -37,6 +37,26 @@ INLINE_EXPLANATION = re.compile(
     re.IGNORECASE,
 )
 
+# Product/tooling context words that appear before the real report content
+# (e.g. "ABC Insights - Analyse - Course bookings"). Stripped from the front so
+# both Key Highlights and the Report column start at the meaningful text.
+CONTEXT_PREFIXES = re.compile(
+    r"^(?:\s*(?:abc\s+insights|insights\s+customi[sz]e|insights\s+analy[sz]e|"
+    r"abc\s+customi[sz]e|customi[sz]e|insights|analy[sz]e)\s*[-–—:]?\s*)+",
+    re.IGNORECASE,
+)
+
+
+def strip_context_prefixes(text: str) -> str:
+    return CONTEXT_PREFIXES.sub("", (text or "").strip()).strip(" -–—:")
+
+
+def tidy_spacing(text: str) -> str:
+    text = re.sub(r"\s+", " ", (text or "").strip())
+    # "Medallia reports(New Paginated Report)" -> "... (New Paginated Report)"
+    text = re.sub(r"(\S)\(", r"\1 (", text)
+    return text
+
 
 def classify_type(project_key: str) -> str:
     key = (project_key or "").upper()
@@ -93,44 +113,62 @@ def report_name_and_description(text: str, typ: str) -> tuple[str, str]:
     return report, desc or report
 
 
-def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
-    """Return (client, report_name, description).
+def client_and_core(summary: str, typ: str) -> tuple[str, str]:
+    """Return (client, core_text).
 
-    report_name = the short report title only (no explanation).
-    description = the remaining explanation text.
+    core_text is the meaningful part of the summary with the client name and
+    product/context prefixes removed. It is the shared basis for both the
+    Key Highlights line and the Report column.
     """
     summary = (summary or "").strip()
 
     if typ == "Analyze":
-        if summary.lower().startswith("analyze"):
-            summary = summary[len("analyze") :].lstrip(" -–—:\t")
-        report, desc = report_name_and_description(summary, typ)
-        return "Standard", report, desc
+        return "Standard", strip_context_prefixes(summary)
 
     # Custom: try known client name at start
     client = None
+    remaining = summary
     for kc in sorted(KNOWN_CUSTOM_CLIENTS, key=len, reverse=True):
         if summary.lower().startswith(kc.lower()):
             client = kc
-            summary = summary[len(kc) :].lstrip(" -–—:\t")
+            remaining = summary[len(kc) :].lstrip(" -–—:\t")
             break
 
-    segs = split_segments(summary)
     if client is None:
         compact_prefix = re.match(r"^([A-Za-z0-9&]+)[-–—](.+)$", summary)
+        segs = split_segments(summary)
         if compact_prefix:
             client = compact_prefix.group(1).strip()
-            segs = split_segments(compact_prefix.group(2).strip())
+            remaining = compact_prefix.group(2).strip()
         elif segs and len(segs[0].split()) <= 3:
             client = segs[0]
-            segs = segs[1:]
+            remaining = " - ".join(segs[1:])
         else:
             client = "Unknown"
+            remaining = summary
 
-    remaining = " - ".join(segs) if segs else summary
-    report, desc = report_name_and_description(remaining, typ)
+    return client, strip_context_prefixes(remaining)
+
+
+def highlight_line(summary: str, typ: str) -> str:
+    """Concise 'Client: <minimal ticket info>' line for Key Highlights."""
+    client, core = client_and_core(summary, typ)
+    core = tidy_spacing(core)
+    if client and core:
+        return f"{client}: {core}"
+    return core or client
+
+
+def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
+    """Return (client, report_name, description).
+
+    report_name = the report/dashboard/model name only (no explanation).
+    description = the remaining explanation text.
+    """
+    client, core = client_and_core(summary, typ)
+    report, desc = report_name_and_description(core, typ)
     if not report:
-        report = clean_asset_name(remaining) or remaining
+        report = clean_asset_name(core) or core
     return client, report, desc
 
 
@@ -141,6 +179,7 @@ def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atl
     typ = classify_type(project)
     summary = fields.get("summary") or ""
     client, report, desc = split_client_report_desc(summary, typ)
+    highlight = highlight_line(summary, typ)
     parent = ((fields.get("parent") or {}).get("key")) or ""
     return {
         "key": key,
@@ -150,6 +189,7 @@ def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atl
         "client": client,
         "report": report,
         "description": desc if desc else report,
+        "highlight": highlight,
         "test_by": "",
         "comments": "",
         "testing_status": "",

@@ -220,12 +220,15 @@ def build_document(data: dict) -> Document:
     add_section_title(doc, "Key Highlights")
     highlights = []
     for t in tickets:
-        client = t.get("client") or ""
-        report = t.get("report") or t.get("description") or ""
-        if client and report:
-            highlights.append(f"{client}: {report}")
-        elif report:
-            highlights.append(report)
+        # Key Highlights shows concise ticket info and is independent of the
+        # name-only Report column. Falls back to Client: Report only if needed.
+        line = t.get("highlight")
+        if not line:
+            client = t.get("client") or ""
+            report = t.get("report") or t.get("description") or ""
+            line = f"{client}: {report}" if client and report else report
+        if line:
+            highlights.append(line)
     add_bullets(doc, highlights or ["(No tickets found)"])
 
     add_section_title(doc, "Affected Clients:")
