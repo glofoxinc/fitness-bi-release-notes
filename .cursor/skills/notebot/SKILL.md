@@ -10,6 +10,18 @@ description: >-
 
 # NoteBot
 
+## CRITICAL — deterministic generation (do NOT improvise)
+
+The Word document must be produced **only** by the scripts in `scripts/`. The agent must **never** hand-write, reword, re-case, shorten, or reorder any generated content.
+
+- ALWAYS run `scripts/build_from_jira_json.py` (it normalizes tickets and builds the `.docx`).
+- The values for Key Highlights, Dashboards / Reports, Report column, Description, clients, and summaries come **verbatim** from the scripts. Do not compose these yourself.
+- Do NOT open the `.docx` and edit text by hand. If something looks wrong, fix the script, not the document.
+- Your only judgement calls: which Fix Version, and which tickets to omit when the user says to remove them.
+- If you think output should change, tell the user and change the script — never quietly rewrite the text in the doc.
+
+Key Highlights and the Report column are produced from **different** fields (`highlight` vs `report`) on purpose. Never make one look like the other.
+
 ## Goal
 
 For a given **Fix Version** (deployment date, e.g. `2026.3.08.12`):
@@ -122,16 +134,20 @@ Exclude epics/parents that are only containers **only if** they have no useful d
 
 Known custom clients from recent releases (not exhaustive): Jetts, Jazzercise, FIT4MOM, FWBC — still parse from summary, do not hard-limit.
 
-### Step 4 — Generate document
+### Step 4 — Generate document (always via script)
 
-1. Write a tickets JSON file (see schema in [document-structure.md](document-structure.md))
-2. Run:
+1. Save the raw Jira search result (the object with `issues[]`) to a JSON file, e.g. `jira_<VERSION>.json`.
+2. If the user asked to remove tickets, delete those issues from that JSON's `issues[]` **before** running (that is the only allowed manual step). Do not touch anything else.
+3. Run the canonical builder — it normalizes tickets and writes the `.docx`:
 
 ```bash
-py -3 scripts/generate_release_notes.py --input <tickets.json> --output "<output_dir>/Release Notes <VERSION>.docx"
+py -3 scripts/build_from_jira_json.py --jira-json <jira_VERSION.json> --fix-version <VERSION> --config config.json --output-json "<output_dir>/Release Notes <VERSION>.pre.json" --output-docx "<output_dir>/Release Notes <VERSION>.docx"
 ```
 
-Script lives at [scripts/generate_release_notes.py](scripts/generate_release_notes.py).
+Use the resulting `.docx` **exactly as produced**. Never edit its text by hand. Scripts:
+[scripts/build_from_jira_json.py](scripts/build_from_jira_json.py),
+[scripts/normalize_tickets.py](scripts/normalize_tickets.py),
+[scripts/generate_release_notes.py](scripts/generate_release_notes.py).
 
 ### Step 5 — Quality spot-check
 
@@ -151,18 +167,16 @@ Before handing to user:
 - SharePoint: if `config.json` → `sharepoint.enabled` is false, say draft is ready for manual upload (or ask for site/folder to enable later)
 - Remind user what they still fill post-deploy
 
-## Narrative generation rules
+## How each section is produced (reference only — the scripts do this)
 
-Keep tone matching sample docs (plain, operational):
+These are implemented in the scripts. They are documented here so you can verify output, **not** so you can generate it yourself.
 
-- **Release Summary**: 1 sentence covering reporting enhancements / custom updates / semantic model / docs as applicable from ticket mix
-- **Key Highlights**: one bullet per ticket → `{Client}: {Report/short description}`
-- **Affected Clients → Analyze**: if any AN tickets → "All Analyze-based (Standard) clients"
-- **Custom Clients Summary**: short blurb + bullet list of distinct custom client names
-- **Standard & Custom Summary**: 1–2 sentences on usability / reports / custom enhancements
-- **Dashboards / Reports**: `{Client} - {Report}` lines, where Report is only the report/dashboard/model/dataset name—never an explanation
+- **Release Summary / Standard & Custom Summary / Custom Clients Summary**: built by `build_from_jira_json.py` from the ticket mix.
+- **Key Highlights**: one bullet per ticket from each ticket's `highlight` field (`{Client}: {concise ticket info}`). Fuller than the Report column — leave it as the script emits it.
+- **Affected Clients → Analyze**: if any AN tickets → "All Analyze-based (Standard) clients".
+- **Dashboards / Reports** and **Change Details → Report**: from each ticket's `report` field — report/dashboard/model/dataset name only, never an explanation.
 
-Do not invent features not present on tickets.
+The scripts never invent features not present on tickets, and neither should you.
 
 ## Failure modes
 
