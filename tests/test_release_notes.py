@@ -28,17 +28,20 @@ def _issue(key, project, summary, parent=""):
     return {"key": key, "fields": fields}
 
 
-# Real fixVersion 2026.3.08.12 summaries -> (expected highlight, expected report)
+# Real fixVersion 2026.3.08.12 summaries
+# -> (expected highlight, expected report, expected description)
 LIVE_TICKETS = [
     (
         _issue("AN-5359", "AN", "ABC Insights - Analyse - Course bookings"),
         "Standard: Course bookings",
+        "Course bookings",
         "Course bookings",
     ),
     (
         _issue("AN-5396", "AN", "Analyze - Remove older class utilization dashboard"),
         "Standard: Remove older class utilization dashboard",
         "class utilization dashboard",
+        "Remove older class utilization dashboard",
     ),
     (
         _issue(
@@ -48,11 +51,13 @@ LIVE_TICKETS = [
         ),
         "Standard: Remove Jetts Vasant Square Mall from Fitness BI Reporting",
         "All Reports",
+        "Remove Jetts Vasant Square Mall from Fitness BI Reporting",
     ),
     (
         _issue("PIC-5407", "PIC", "XtremeFitness - Custom semantic model optimization"),
         "XtremeFitness: Custom semantic model optimization",
         "Custom semantic model",
+        "Custom semantic model optimization",
     ),
     (
         _issue(
@@ -60,6 +65,7 @@ LIVE_TICKETS = [
         ),
         "Lift: Medallia reports (New Paginated Report)",
         "Medallia reports",
+        "Medallia reports (New Paginated Report)",
     ),
     (
         _issue(
@@ -71,18 +77,28 @@ LIVE_TICKETS = [
         "Jazzercise: Class Participation Report - Event Details tab - "
         "Weekly Class Counts updates needed",
         "Class Participation Report",
+        "Class Participation Report - Event Details tab - "
+        "Weekly Class Counts updates needed",
     ),
 ]
 
 
 class KeyHighlightVsReportSeparationTests(unittest.TestCase):
-    def test_highlight_and_report_match_live_expectations(self):
-        for issue, expected_highlight, expected_report in LIVE_TICKETS:
+    def test_highlight_report_and_description_match_live_expectations(self):
+        for issue, expected_highlight, expected_report, expected_desc in LIVE_TICKETS:
             row = normalize_issue(issue)
             self.assertEqual(
                 row["highlight"], expected_highlight, msg=issue["key"]
             )
             self.assertEqual(row["report"], expected_report, msg=issue["key"])
+            self.assertEqual(row["description"], expected_desc, msg=issue["key"])
+
+    def test_description_is_never_a_bare_fragment(self):
+        row = normalize_issue(
+            _issue("PIC-5407", "PIC", "XtremeFitness - Custom semantic model optimization")
+        )
+        self.assertEqual(row["description"], "Custom semantic model optimization")
+        self.assertNotEqual(row["description"], "optimization")
 
     def test_highlight_is_independent_of_report(self):
         # Key Highlights keeps the fuller ticket info even when Report is name-only.

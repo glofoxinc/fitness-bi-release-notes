@@ -172,13 +172,24 @@ def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
     return client, report, desc
 
 
+def description_text(summary: str, typ: str) -> str:
+    """Full concise change text for the Description column.
+
+    Uses the whole meaningful summary so the cell always reads as a complete
+    change (never a bare fragment like "optimization").
+    """
+    _, core = client_and_core(summary, typ)
+    return tidy_spacing(core)
+
+
 def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atlassian.net") -> dict[str, Any]:
     fields = issue.get("fields") or {}
     key = issue.get("key") or ""
     project = (fields.get("project") or {}).get("key") or key.split("-")[0]
     typ = classify_type(project)
     summary = fields.get("summary") or ""
-    client, report, desc = split_client_report_desc(summary, typ)
+    client, report, _ = split_client_report_desc(summary, typ)
+    desc = description_text(summary, typ)
     highlight = highlight_line(summary, typ)
     parent = ((fields.get("parent") or {}).get("key")) or ""
     return {
