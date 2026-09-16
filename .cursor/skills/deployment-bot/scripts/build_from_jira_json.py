@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from normalize_tickets import normalize_issues  # noqa: E402
+from normalize_tickets import ANALYZE_CLIENT, DEFAULT_CATEGORIES, normalize_issues  # noqa: E402
 from generate_release_notes import build_document, MONTHS  # noqa: E402
 
 
@@ -23,37 +23,66 @@ def find_release_date(fix_version: str, issues: list) -> str:
     return ""
 
 
+def count_categories(tickets: list, categories: dict) -> list[dict]:
+    order = categories.get("order") or DEFAULT_CATEGORIES["order"]
+    display = categories.get("display") or DEFAULT_CATEGORIES["display"]
+    counts = {key: 0 for key in order}
+    for t in tickets:
+        key = t.get("category") or (categories.get("fallback") or "customizations")
+        counts[key] = counts.get(key, 0) + 1
+    return [
+        {"key": key, "label": display.get(key, key), "count": counts.get(key, 0)}
+        for key in order
+    ]
+
+
+def size_sentence(
+    category_counts: list[dict],
+    categories: dict,
+    has_analyze: bool = False,
+    custom_clients: list[str] | None = None,
+) -> str:
+    """The single Release Summary: brief description plus the delivery counts."""
+    forms = categories.get("sentence") or DEFAULT_CATEGORIES["sentence"]
+    parts = []
+    for row in category_counts:
+        count = row["count"]
+        if not count:
+            continue
+        singular, plural = forms.get(row["key"], (row["label"], row["label"]))
+        parts.append(f"{count} {singular if count == 1 else plural}")
+
+    if not parts:
+        return "This release contains no deliverables in the tracked categories."
+    if len(parts) == 1:
+        counts_text = parts[0]
+    else:
+        counts_text = ", ".join(parts[:-1]) + f", and {parts[-1]}"
+
+    scope = []
+    if has_analyze:
+        scope.append(ANALYZE_CLIENT)
+    scope.extend(custom_clients or [])
+    if not scope:
+        return f"This release delivers {counts_text}."
+    if len(scope) == 1:
+        scope_text = scope[0]
+    else:
+        scope_text = ", ".join(scope[:-1]) + f", and {scope[-1]}"
+    return f"This release delivers {counts_text} for {scope_text}."
+
+
 def build_payload(fix_version: str, issues: list, config: dict) -> dict:
-    tickets = normalize_issues(issues)
+    categories = config.get("summary_categories") or DEFAULT_CATEGORIES
+    tickets = normalize_issues(issues, categories)
+    category_counts = count_categories(tickets, categories)
     has_analyze = any(t["type"] == "Analyze" for t in tickets)
-    has_custom = any(t["type"] == "Custom" for t in tickets)
     customs = []
     for t in tickets:
         if t["type"] == "Custom" and t["client"] not in customs and t["client"] != "Unknown":
             customs.append(t["client"])
 
-    bits = []
-    if has_analyze:
-        bits.append("reporting enhancements")
-    if has_custom:
-        bits.append("custom client updates")
-    bits.append("semantic model improvements")
-    release_summary = "This release includes " + ", ".join(bits[:-1])
-    if len(bits) > 1:
-        release_summary += f", and {bits[-1]}."
-    else:
-        release_summary = f"This release includes {bits[0]}."
-
-    custom_summary = (
-        "This release includes updates to existing functionality, semantic model changes, "
-        "column additions, and new report creation for custom clients."
-        if has_custom
-        else "No custom client changes in this release."
-    )
-    std_summary = (
-        "This release improves reporting usability through dashboard restructuring, clearer "
-        "report metrics, and standardized paginated report formatting alongside custom client enhancements."
-    )
+    release_summary = size_sentence(category_counts, categories, has_analyze, customs)
 
     return {
         "fix_version": fix_version,
@@ -62,9 +91,8 @@ def build_payload(fix_version: str, issues: list, config: dict) -> dict:
         "meta": config.get("defaults", {}),
         "narratives": {
             "release_summary": release_summary,
-            "custom_clients_summary": custom_summary,
-            "standard_custom_summary": std_summary,
         },
+        "category_counts": category_counts,
         "tickets": tickets,
         "excluded": [],
     }
@@ -95,11 +123,16 @@ def main():
     build_document(payload).save(str(out_docx))
 
     unknowns = [t["key"] for t in payload["tickets"] if t.get("client") == "Unknown"]
+    unlabeled = [t["key"] for t in payload["tickets"] if not t.get("category_from_label")]
     print(f"Tickets: {len(payload['tickets'])}")
+    for row in payload["category_counts"]:
+        print(f"  {row['label']}: {row['count']}")
     print(f"Wrote JSON: {out_json}")
     print(f"Wrote DOCX: {out_docx}")
     if unknowns:
         print("WARNING Unknown clients:", ", ".join(unknowns))
+    if unlabeled:
+        print("WARNING Category from summary (no category label):", ", ".join(unlabeled))
 
 
 if __name__ == "__main__":

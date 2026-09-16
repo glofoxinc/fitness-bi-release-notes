@@ -1,0 +1,85 @@
+{
+  "issues": [
+    {
+      "id": "946051",
+      "key": "PIC-5966",
+      "fields": {
+        "summary": "Xtreme Fitness - Sales League Report - Change to Filter Logic",
+        "issuetype": {
+          "id": "10617",
+          "name": "Task",
+          "subtask": false,
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "762427",
+          "key": "PIC-4238",
+          "fields": {
+            "summary": "Xtreme Fitness - Glofox Customize Implementation",
+            "status": {
+              "name": "To Do",
+              "id": "11011",
+              "statusCategory": {
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "id": "10616",
+              "name": "Epic",
+              "subtask": false,
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "id": "13861",
+          "key": "PIC",
+          "name": "Insights Customize",
+          "projectTypeKey": "software",
+          "simplified": true
+        },
+        "description": "Is it possible to function the locations post a group filter? If yes that is what the client is asking for.\n\nPer the client: The request is:\nWe want to display the groups on the right-hand side, and when a group is selected, we want to see the clubs that belong to it. However, when one club or multiple clubs from different groups are selected in the location filter, we want the data to be displayed only for those selected clubs.",
+        "assignee": {
+          "accountId": "712020:d2da6909-489a-44ae-825f-0fd6cd0464d5",
+          "emailAddress": "bharathi.aribolu@abcfitness.com",
+          "displayName": "Bharathi Aribolu",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "id": "40476",
+            "description": "",
+            "name": "2026.3.09.16",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-09-16"
+          }
+        ],
+        "status": {
+          "name": "Done",
+          "id": "11013",
+          "statusCategory": {
+            "id": 3,
+            "key": "done",
+            "colorName": "green",
+            "name": "Done"
+          }
+        },
+        "labels": [
+          "Report_Enhancement"
+        ]
+      }
+    }
+  ],
+  "isLast": true
+}

@@ -1,0 +1,964 @@
+{
+  "issues": [
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "885583",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/885583",
+      "key": "AN-5295",
+      "fields": {
+        "summary": "Analyze - New Dashboard - Appointment Utilization",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10100",
+          "id": "10100",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "903212",
+          "key": "AN-5356",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/903212",
+          "fields": {
+            "summary": "Fitness BI Analyze Q3 changes",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/10854",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "10854",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/12012",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/20197?size=medium",
+              "name": "To be prioritized",
+              "id": "12012"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10000",
+              "id": "10000",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://abcfinancial.atlassian.net/images/icons/issuetypes/epic.svg",
+              "name": "Epic",
+              "subtask": false,
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/17092",
+          "id": "17092",
+          "key": "AN",
+          "name": "Glofox Analytics",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=medium"
+          },
+          "projectCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/projectCategory/12111",
+            "id": "12111",
+            "description": "",
+            "name": "Glofox Projects"
+          }
+        },
+        "description": "**Background**\n\nAs we are rebuilding Class Utilization to just show class detail we need to add a new Appointment Utilization dashboard. Appointments are not as widely used and even less so among multi-location customers. The dashboard should provide insights into appointments but does not need same level of detail as with Class Utilization. We can add to it in future based on customer feedback.\n\nProposal = we create new Appointment Utilization dashboard (No class data) with below tabs\n\n* Summary Tab (5 KPIs (with prior month & prior year data) and 2 visualizations (Appointments held held and Total booked, 13 months)\n* By Location/Trainer/Program\n* By Trainer & by Program\n* Trending data over time (monthly) for Attendance %, No Show%, Booked Time % (13 months)\n* Documentation tab\n\nAdvanced Filters to include below filters. \n\nCountry, State, Membership Name, Plan name, Program Name, Trainer, Day of week    \nUse Similar Layout as Class Utilization New Dashboard\n\n[Metrics](https://abcfinancial-my.sharepoint.com/:x:/g/personal/eoin_george_abcfitness_com/IQARQMd8ron0QqnfIJRHA_xDAQ4jgMscHVOadSTBmIw2ldU?e=aTrGBS) (2nd tab)",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3Adf0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "accountId": "712020:df0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "emailAddress": "chantikumar.jakkula@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png"
+          },
+          "displayName": "Chanti Kumar Jakkula",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38575",
+            "id": "38575",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/3",
+          "description": "This work item is being actively worked on at the moment by the assignee.",
+          "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/inprogress.png",
+          "name": "In Progress",
+          "id": "3",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "NewRequirement",
+          "resolution-agent-processed"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "903214",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/903214",
+      "key": "AN-5357",
+      "fields": {
+        "summary": "Promo look up - New Pagianted Report",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/12925",
+          "id": "12925",
+          "description": "",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10311?size=medium",
+          "name": "Request",
+          "subtask": false,
+          "avatarId": 10311,
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "903212",
+          "key": "AN-5356",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/903212",
+          "fields": {
+            "summary": "Fitness BI Analyze Q3 changes",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/10854",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "10854",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/12012",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/20197?size=medium",
+              "name": "To be prioritized",
+              "id": "12012"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10000",
+              "id": "10000",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://abcfinancial.atlassian.net/images/icons/issuetypes/epic.svg",
+              "name": "Epic",
+              "subtask": false,
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/17092",
+          "id": "17092",
+          "key": "AN",
+          "name": "Glofox Analytics",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=medium"
+          },
+          "projectCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/projectCategory/12111",
+            "id": "12111",
+            "description": "",
+            "name": "Glofox Projects"
+          }
+        },
+        "description": "**Task** - create new ABC Analyze paginated report called ‘Promo look up'\n\n**notes**\n\nlayout similar to looker report - [https://glofox.eu.looker.com/dashboards/818](https://glofox.eu.looker.com/dashboards/818)\n\nReport to be called ‘Promo look up’ \n\nfilters required for location, discount name and promo code. Also need a ‘Created at’ filter.\n\n![](blob:https://media.staging.atl-paas.net/?type=file&localId=57369f5cdb89&id=4336a35e-238b-4a3e-992b-9923b2306f00&&collection=&height=789&occurrenceKey=null&width=1663&__contextId=null&__displayType=null&__external=false&__fileMimeType=null&__fileName=null&__fileSize=null&__mediaTraceId=null&url=null)\n ",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3A04b70386-5650-40a8-a800-b9bf9915b83f",
+          "accountId": "712020:04b70386-5650-40a8-a800-b9bf9915b83f",
+          "emailAddress": "nikhath.begum@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png"
+          },
+          "displayName": "Nikhath Begum",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38575",
+            "id": "38575",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/14644",
+          "description": "This status is managed internally by JIRA Software (Migrated on 17 May 2025 13:07 UTC)",
+          "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/generic.png",
+          "name": "QA (migrated)",
+          "id": "14644",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Looker-Exit"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "937619",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/937619",
+      "key": "AN-5460",
+      "fields": {
+        "summary": "Payouts-Transaction Details -Mismatch in failed payments between Glofox and Insights ",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10101",
+          "id": "10101",
+          "description": "A small piece of work that's part of a larger task.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10316?size=medium",
+          "name": "Sub-task",
+          "subtask": true,
+          "avatarId": 10316,
+          "hierarchyLevel": -1
+        },
+        "parent": {
+          "id": "822131",
+          "key": "AN-5082",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/822131",
+          "fields": {
+            "summary": "Revenue Analysis Dashboard - Data Validation & Reconciliation",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/3",
+              "description": "This work item is being actively worked on at the moment by the assignee.",
+              "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/inprogress.png",
+              "name": "In Progress",
+              "id": "3",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+                "id": 4,
+                "key": "indeterminate",
+                "colorName": "yellow",
+                "name": "In Progress"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/12012",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/20197?size=medium",
+              "name": "To be prioritized",
+              "id": "12012"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10100",
+              "id": "10100",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/17092",
+          "id": "17092",
+          "key": "AN",
+          "name": "Glofox Analytics",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=medium"
+          },
+          "projectCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/projectCategory/12111",
+            "id": "12111",
+            "description": "",
+            "name": "Glofox Projects"
+          }
+        },
+        "description": "During validation, observed that failed payments are visible in Glofox for April 2026 at the Snap Fitness Concord West branch. However, for the same branch and date range, no failed payments appear in Insights.\n\n‌\n\nURL for failed payments report in glofox- <custom data-type=\"smartlink\" data-id=\"id-0\">https://app.glofox.com/dashboard/#/reports/failed-payments</custom> ",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3Adf0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "accountId": "712020:df0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "emailAddress": "chantikumar.jakkula@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png"
+          },
+          "displayName": "Chanti Kumar Jakkula",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38575",
+            "id": "38575",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/14663",
+          "description": "(Migrated on 17 May 2025 13:20 UTC)",
+          "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/generic.png",
+          "name": "Passed QA",
+          "id": "14663",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Bug",
+          "resolution-agent-processed"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "937621",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/937621",
+      "key": "AN-5461",
+      "fields": {
+        "summary": "Payouts- Item Details-Mismatch in failed payments between Glofox and Insights",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10101",
+          "id": "10101",
+          "description": "A small piece of work that's part of a larger task.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10316?size=medium",
+          "name": "Sub-task",
+          "subtask": true,
+          "avatarId": 10316,
+          "hierarchyLevel": -1
+        },
+        "parent": {
+          "id": "822131",
+          "key": "AN-5082",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/822131",
+          "fields": {
+            "summary": "Revenue Analysis Dashboard - Data Validation & Reconciliation",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/3",
+              "description": "This work item is being actively worked on at the moment by the assignee.",
+              "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/inprogress.png",
+              "name": "In Progress",
+              "id": "3",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+                "id": 4,
+                "key": "indeterminate",
+                "colorName": "yellow",
+                "name": "In Progress"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/12012",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/20197?size=medium",
+              "name": "To be prioritized",
+              "id": "12012"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10100",
+              "id": "10100",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/17092",
+          "id": "17092",
+          "key": "AN",
+          "name": "Glofox Analytics",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15454?size=medium"
+          },
+          "projectCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/projectCategory/12111",
+            "id": "12111",
+            "description": "",
+            "name": "Glofox Projects"
+          }
+        },
+        "description": "During validation, observed that failed payments are visible in Glofox for April 2026 at the Snap Fitness Concord West branch. However, for the same branch and date range, no failed payments appear in Insights. It’s observed for all of the corps.",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3Adf0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "accountId": "712020:df0d5bd0-c115-4c10-a15f-08f5b64383bb",
+          "emailAddress": "chantikumar.jakkula@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/c21870b7cf83b64dd4da5d62557f24c1?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCJ-3.png"
+          },
+          "displayName": "Chanti Kumar Jakkula",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38575",
+            "id": "38575",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/14663",
+          "description": "(Migrated on 17 May 2025 13:20 UTC)",
+          "iconUrl": "https://abcfinancial.atlassian.net/images/icons/statuses/generic.png",
+          "name": "Passed QA",
+          "id": "14663",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Bug",
+          "resolution-agent-processed"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "883289",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/883289",
+      "key": "PIC-5407",
+      "fields": {
+        "summary": "XtremeFitness - Custom semantic model optimization",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10617",
+          "id": "10617",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "entityId": "83d4f186-62d7-40fb-bdd2-16c9d6e1568c",
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "762427",
+          "key": "PIC-4238",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/762427",
+          "fields": {
+            "summary": "Xtreme Fitness",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11011",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "11011",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/3",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/17679?size=medium",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10616",
+              "id": "10616",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium",
+              "name": "Epic",
+              "subtask": false,
+              "avatarId": 10307,
+              "entityId": "47f2ab19-a54c-4f33-bd3d-725b753d1378",
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/13861",
+          "id": "13861",
+          "key": "PIC",
+          "name": "Insights Customize",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=medium"
+          }
+        },
+        "description": "Analyze the Xtreme data model to assess its performance characteristics and recommend the most suitable data storage mode (Import, DirectLake, or DirectQuery). The analysis should consider data volume, query patterns, refresh requirements, and overall performance impact. Based on the findings, provide a clear recommendation on the optimal mode, supported by a documented explanation of the decision for future reference.",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3Ad2da6909-489a-44ae-825f-0fd6cd0464d5",
+          "accountId": "712020:d2da6909-489a-44ae-825f-0fd6cd0464d5",
+          "emailAddress": "bharathi.aribolu@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/3a118de0da54972068906f8a4ca2cb98?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBA-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/3a118de0da54972068906f8a4ca2cb98?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBA-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/3a118de0da54972068906f8a4ca2cb98?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBA-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/3a118de0da54972068906f8a4ca2cb98?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FBA-3.png"
+          },
+          "displayName": "Bharathi Aribolu",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38609",
+            "id": "38609",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11018",
+          "description": "",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+          "name": "Validation",
+          "id": "11018",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Optimize"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "903192",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/903192",
+      "key": "PIC-5660",
+      "fields": {
+        "summary": "Jazercise - Bookings by Location (Choreo Remix and Vital Sculpt) - new paginated customize report",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10617",
+          "id": "10617",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "entityId": "83d4f186-62d7-40fb-bdd2-16c9d6e1568c",
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "749117",
+          "key": "PIC-4155",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/749117",
+          "fields": {
+            "summary": "Jazzercise",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11011",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "11011",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/3",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/17679?size=medium",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10616",
+              "id": "10616",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium",
+              "name": "Epic",
+              "subtask": false,
+              "avatarId": 10307,
+              "entityId": "47f2ab19-a54c-4f33-bd3d-725b753d1378",
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/13861",
+          "id": "13861",
+          "key": "PIC",
+          "name": "Insights Customize",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=medium"
+          }
+        },
+        "description": "**task** - Add new customize paginated report for Jazzer Locations by class product offering\n\n‌\n\n**notes** \n\ncontext -Locations offering particular class bookings. \n\nReport can be called ‘Locations by Product’\n\nwe can combine 2 reports into one here. (Vital sculpt & Choreo). \n\nDate filter needed for the bookings created dates and also a filter to split of Vital sculpt v Choreo class bookings.\n\nLocation filter also needed\n\n| [https://glofox.eu.looker.com/explore/booking/flt_bookings?qid=S7oJyGJ7rxNQPxnXtsRxo9&origin_space=484&toggle=fil,vis](https://glofox.eu.looker.com/explore/booking/flt_bookings?qid=S7oJyGJ7rxNQPxnXtsRxo9&origin_space=484&toggle=fil,vis)  [https://glofox.eu.looker.com/explore/booking/flt_bookings?qid=GpLE90evRHIa5Re5kMgtTn&origin_space=484&toggle=fil,vis](https://glofox.eu.looker.com/explore/booking/flt_bookings?qid=GpLE90evRHIa5Re5kMgtTn&origin_space=484&toggle=fil,vis) |\n| --- |\n",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3A04b70386-5650-40a8-a800-b9bf9915b83f",
+          "accountId": "712020:04b70386-5650-40a8-a800-b9bf9915b83f",
+          "emailAddress": "nikhath.begum@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/cbefda687eef408a89b7d69deaca4479?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNB-3.png"
+          },
+          "displayName": "Nikhath Begum",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38609",
+            "id": "38609",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11016",
+          "description": "",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+          "name": "QA Ready",
+          "id": "11016",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Looker-Exit"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "904002",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/904002",
+      "key": "PIC-5673",
+      "fields": {
+        "summary": "Lift - ABC Customize - Medallia reports(New Paginated Report)",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10617",
+          "id": "10617",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "entityId": "83d4f186-62d7-40fb-bdd2-16c9d6e1568c",
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "792263",
+          "key": "PIC-4474",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/792263",
+          "fields": {
+            "summary": "Lift Custom reports ",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11011",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "11011",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/3",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/17679?size=medium",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10616",
+              "id": "10616",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium",
+              "name": "Epic",
+              "subtask": false,
+              "avatarId": 10307,
+              "entityId": "47f2ab19-a54c-4f33-bd3d-725b753d1378",
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/13861",
+          "id": "13861",
+          "key": "PIC",
+          "name": "Insights Customize",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=medium"
+          }
+        },
+        "description": "**Task** - create 3 separate ABC Customer paginated reports \n\n‌\n\n**background**\n\nLift receive below 3 reports each week from an automated send in Looker. Lift share the reports with their marketing agency for mareketing purposes. The reports are the same except different countries are selected in each. The reports contain access data for  members of clubs in each region. \n\n| [https://glofox.eu.looker.com/looks/1963](https://glofox.eu.looker.com/looks/1963) (Snap Americas) |\n| --- |\n| [https://glofox.eu.looker.com/looks/1964](https://glofox.eu.looker.com/looks/1964) (Snap APAC) |\n| [https://glofox.eu.looker.com/looks/1965](https://glofox.eu.looker.com/looks/1965) (Snap EMEA) |\n\n**Notes -** \n\nreports will need date filters.\n\nColumns as per in the files\n\nReport can be called ‘Snap Americas Medallia', Snap APAC Medallia, Snap EMEA Medallia’",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3A7c232d48-fb4e-4af0-bc40-42a7eb3990eb",
+          "accountId": "712020:7c232d48-fb4e-4af0-bc40-42a7eb3990eb",
+          "emailAddress": "rekhapavani.kancharla@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/2ab312c5f3631860b7e49e675882ad61?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRK-4.png",
+            "24x24": "https://secure.gravatar.com/avatar/2ab312c5f3631860b7e49e675882ad61?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRK-4.png",
+            "16x16": "https://secure.gravatar.com/avatar/2ab312c5f3631860b7e49e675882ad61?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRK-4.png",
+            "32x32": "https://secure.gravatar.com/avatar/2ab312c5f3631860b7e49e675882ad61?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRK-4.png"
+          },
+          "displayName": "Rekha Pavani Kancharla",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38609",
+            "id": "38609",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11016",
+          "description": "",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+          "name": "QA Ready",
+          "id": "11016",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": [
+          "Looker-Exit"
+        ]
+      }
+    },
+    {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "948316",
+      "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/948316",
+      "key": "PIC-5984",
+      "fields": {
+        "summary": "Jetts-Custom model - Disabling the data factory scheduled refresh ",
+        "issuetype": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10617",
+          "id": "10617",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "entityId": "83d4f186-62d7-40fb-bdd2-16c9d6e1568c",
+          "hierarchyLevel": 0
+        },
+        "parent": {
+          "id": "759224",
+          "key": "PIC-4211",
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issue/759224",
+          "fields": {
+            "summary": "Jetts",
+            "status": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11011",
+              "description": "",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+              "name": "To Do",
+              "id": "11011",
+              "statusCategory": {
+                "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "priority": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/priority/3",
+              "iconUrl": "https://abcfinancial.atlassian.net/rest/api/2/universal_avatar/view/type/priority/avatar/17679?size=medium",
+              "name": "Medium",
+              "id": "3"
+            },
+            "issuetype": {
+              "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/issuetype/10616",
+              "id": "10616",
+              "description": "A collection of related bugs, stories, and tasks.",
+              "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium",
+              "name": "Epic",
+              "subtask": false,
+              "avatarId": 10307,
+              "entityId": "47f2ab19-a54c-4f33-bd3d-725b753d1378",
+              "hierarchyLevel": 1
+            }
+          }
+        },
+        "components": [],
+        "project": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/project/13861",
+          "id": "13861",
+          "key": "PIC",
+          "name": "Insights Customize",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457",
+            "24x24": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=small",
+            "16x16": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=xsmall",
+            "32x32": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/universal_avatar/view/type/project/avatar/15457?size=medium"
+          }
+        },
+        "description": "As All the custom dashboard are pointing to the Jetts Dataset model   \nWe want to remove the scheduling refresh for the “Jetts Custom Semantic Model “ since  no active reports pointing to it   \nWorkspace: Jetts  \nMode:Jetts Custom Semantic Model   \nLink:[https://app.powerbi.com/groups/e59943ef-6f4b-47e4-b923-9249cf3204e5/modeling/7805ab95-ea0a-4220-a2f6-489564984496/modelView?experience=power-bi](https://app.powerbi.com/groups/e59943ef-6f4b-47e4-b923-9249cf3204e5/modeling/7805ab95-ea0a-4220-a2f6-489564984496/modelView?experience=power-bi)",
+        "assignee": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/user?accountId=712020%3Ab77f1a28-b9fa-48f9-a9b3-e9cda377bf06",
+          "accountId": "712020:b77f1a28-b9fa-48f9-a9b3-e9cda377bf06",
+          "emailAddress": "ramugalla.monasujitha@abcfitness.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/3485d095abd629701ccf96364e6eeb43?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRS-2.png",
+            "24x24": "https://secure.gravatar.com/avatar/3485d095abd629701ccf96364e6eeb43?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRS-2.png",
+            "16x16": "https://secure.gravatar.com/avatar/3485d095abd629701ccf96364e6eeb43?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRS-2.png",
+            "32x32": "https://secure.gravatar.com/avatar/3485d095abd629701ccf96364e6eeb43?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FRS-2.png"
+          },
+          "displayName": "Ramugalla Mona Sujitha",
+          "active": true,
+          "timeZone": "America/Chicago",
+          "accountType": "atlassian"
+        },
+        "fixVersions": [
+          {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/version/38609",
+            "id": "38609",
+            "description": "",
+            "name": "2026.3.08.20",
+            "archived": false,
+            "released": false,
+            "releaseDate": "2026-08-20"
+          }
+        ],
+        "status": {
+          "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/status/11019",
+          "description": "",
+          "iconUrl": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/",
+          "name": "Ready for Release",
+          "id": "11019",
+          "statusCategory": {
+            "self": "https://api.atlassian.com/ex/jira/5c639b1d-82c0-4932-96af-65d4921fcf57/rest/api/3/statuscategory/4",
+            "id": 4,
+            "key": "indeterminate",
+            "colorName": "yellow",
+            "name": "In Progress"
+          }
+        },
+        "labels": []
+      }
+    }
+  ],
+  "isLast": true
+}

@@ -1,0 +1,105 @@
+{
+  "agent_name": "Deployment Bot",
+  "jira_site": "https://abcfinancial.atlassian.net",
+  "cloud_id": "5c639b1d-82c0-4932-96af-65d4921fcf57",
+  "analyze_projects": ["AN"],
+  "custom_projects": ["PIC"],
+  "defaults": {
+    "development_team": "Customize BI Team",
+    "release_owner": "",
+    "senior_manager": "Sushma Bhamidipati",
+    "svp": "Rahul Das",
+    "environment": "Production"
+  },
+  "summary_categories": {
+    "order": ["new_reports", "customizations", "looker_exits", "optimizations"],
+    "priority": ["looker_exits", "optimizations", "new_reports", "customizations"],
+    "labels": {
+      "new_reports": ["NewRequirement", "New_Report", "NewReport"],
+      "customizations": [
+        "Report_Enhancement",
+        "Enhancement",
+        "Customize",
+        "Customization",
+        "PIC_Customize",
+        "PIC_CustomReport"
+      ],
+      "looker_exits": ["Looker-Exit", "Looker_Exit", "LookerExit"],
+      "optimizations": ["Optimize", "Optimization", "Optimisation", "Performance"]
+    },
+    "display": {
+      "new_reports": "New Reports",
+      "customizations": "Customizations",
+      "looker_exits": "Looker Exits",
+      "optimizations": "Optimizations"
+    },
+    "sentence": {
+      "new_reports": ["new report", "new reports"],
+      "customizations": ["customization", "customizations"],
+      "looker_exits": ["Looker exit", "Looker exits"],
+      "optimizations": ["optimization", "optimizations"]
+    },
+    "fallback": "customizations"
+  },
+  "output_dir": "C:\\Users\\RMon01\\Downloads\\ReleaseNotes",
+  "sharepoint": {
+    "enabled": true,
+    "upload_method": "browser",
+    "site_url": "https://abcfinancial.sharepoint.com/teams/ABCFitnessSolutionsLLC-Glofox-Customize",
+    "library": "Shared Documents",
+    "server_relative_folder": "/teams/ABCFitnessSolutionsLLC-Glofox-Customize/Shared Documents/Glofox - Customize/Release Notes",
+    "folder_url": "https://abcfinancial.sharepoint.com/teams/ABCFitnessSolutionsLLC-Glofox-Customize/Shared%20Documents/Forms/AllItems.aspx?id=%2Fteams%2FABCFitnessSolutionsLLC%2DGlofox%2DCustomize%2FShared%20Documents%2FGlofox%20%2D%20Customize%2FRelease%20Notes",
+    "folder_name": "deployment bot release notes",
+    "month_folder_pattern": "YYYY-MM",
+    "staging_dir": ".playwright-mcp",
+    "local_sync_path": "",
+    "notes": "Live layout: Release Notes / deployment bot release notes / YYYY-MM / Release Notes <VERSION>.docx. Browser upload unless the library is synced."
+  },
+  "shipit": {
+    "project_key": "SHIPIT",
+    "issue_type": "Change Request",
+    "link_type": "Discovery - Connected",
+    "priority": "Medium",
+    "change_type": "Normal",
+    "change_risk": "Medium",
+    "new_update_app": "New app",
+    "approver_group_id": "7e6deb19-8ce4-46c8-88cd-a695a554e5f8",
+    "approver_group_name": "Insights Customize Approvers",
+    "planned_start_local": "10:30",
+    "planned_end_local": "12:30",
+    "timezone_offset": "+0530",
+    "leave_assignee_blank": true,
+    "leave_request_type_blank": true,
+    "notes": "Reporter is whoever is signed in to Atlassian MCP. Do not set Request Type (API cannot stamp Manual Change)."
+  },
+  "slack": {
+    "enabled": true,
+    "mcp": "user-slack",
+    "send_method": "slack_send_message",
+    "unfurl_app_links": true,
+    "workspace": "Glofox",
+    "sender_note": "Posts as the Slack user signed into Cursor MCP, not as a bot and not as the deployment owner.",
+    "never_post_unless_asked": true,
+    "channels": [
+      {
+        "id": "C08HB93PEVD",
+        "name": "insights-customize-squad",
+        "kind": "public",
+        "cc": ["U08LDAQ7SDV", "U0ASR2XGRPZ"]
+      },
+      {
+        "id": "C08KM1USMM1",
+        "name": "customize-bi-buddies",
+        "kind": "private",
+        "cc": ["U08LDAQ7SDV"]
+      }
+    ],
+    "mentions": {
+      "sushma_bhamidipati": "U08LDAQ7SDV",
+      "trent_vanest": "U0ASR2XGRPZ"
+    },
+    "cc_rule": "CC Sushma only in #customize-bi-buddies. CC Sushma and Trent in #insights-customize-squad.",
+    "template": "Hello Team,\n\nOur upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.\nRelease notes and the deployment ticket are below for reference:\n\nSharePoint: [{filename}]({sharepoint_url})\nService Desk: [{shipit_key}]({shipit_url})\n\nThanks!{cc_line}",
+    "notes": "Do not post while training. Do not post on generate-only or generate+SHIPIT unless the user explicitly asks to notify Slack. Live test is a real deployment prompt only."
+  }
+}

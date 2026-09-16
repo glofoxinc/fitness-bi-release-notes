@@ -9,6 +9,48 @@ from typing import Any
 
 CLIENT_SPLIT = re.compile(r"\s+[-–:]\s+")
 
+# Analyze (AN) tickets ship to every Analyze-based client, tracked as one name.
+ANALYZE_CLIENT = "Glofox Analyze"
+
+# Release size categories. Every ticket lands in exactly one bucket so the
+# counts in the doc add up to the ticket count.
+DEFAULT_CATEGORIES = {
+    "order": ["new_reports", "customizations", "looker_exits", "optimizations"],
+    "priority": ["looker_exits", "optimizations", "new_reports", "customizations"],
+    "labels": {
+        "new_reports": ["NewRequirement", "New_Report", "NewReport"],
+        "customizations": [
+            "Report_Enhancement",
+            "Enhancement",
+            "Customize",
+            "Customization",
+            "PIC_Customize",
+            "PIC_CustomReport",
+        ],
+        "looker_exits": ["Looker-Exit", "Looker_Exit", "LookerExit"],
+        "optimizations": ["Optimize", "Optimization", "Optimisation", "Performance"],
+    },
+    "display": {
+        "new_reports": "New Reports",
+        "customizations": "Customizations",
+        "looker_exits": "Looker Exits",
+        "optimizations": "Optimizations",
+    },
+    "sentence": {
+        "new_reports": ["new report", "new reports"],
+        "customizations": ["customization", "customizations"],
+        "looker_exits": ["Looker exit", "Looker exits"],
+        "optimizations": ["optimization", "optimizations"],
+    },
+    "fallback": "customizations",
+}
+
+LOOKER_SUMMARY = re.compile(r"\blooker\b.{0,20}\bexit\b|\bexit\b.{0,20}\blooker\b", re.IGNORECASE)
+OPTIMIZE_SUMMARY = re.compile(r"\boptimi[sz]\w*\b|\bperformance\b", re.IGNORECASE)
+NEW_REPORT_SUMMARY = re.compile(
+    r"\bnew\b[^.]{0,40}?\b(?:paginated\s+)?(?:report|dashboard)\b", re.IGNORECASE
+)
+
 # Extend via config / skill updates as new clients appear
 KNOWN_CUSTOM_CLIENTS = [
     "FIT4MOM",
@@ -39,7 +81,7 @@ INLINE_EXPLANATION = re.compile(
 
 # Product/tooling context words that appear before the real report content
 # (e.g. "ABC Insights - Analyse - Course bookings"). Stripped from the front so
-# both Key Highlights and the Report column start at the meaningful text.
+# both the delivered-report line and report field start at meaningful text.
 CONTEXT_PREFIXES = re.compile(
     r"^(?:\s*(?:abc\s+insights|insights\s+customi[sz]e|insights\s+analy[sz]e|"
     r"abc\s+customi[sz]e|customi[sz]e|insights|analy[sz]e)\s*[-–—:]?\s*)+",
@@ -118,12 +160,12 @@ def client_and_core(summary: str, typ: str) -> tuple[str, str]:
 
     core_text is the meaningful part of the summary with the client name and
     product/context prefixes removed. It is the shared basis for both the
-    Key Highlights line and the Report column.
+    delivered-report line and report field.
     """
     summary = (summary or "").strip()
 
     if typ == "Analyze":
-        return "Standard", strip_context_prefixes(summary)
+        return ANALYZE_CLIENT, strip_context_prefixes(summary)
 
     # Custom: try known client name at start
     client = None
@@ -151,12 +193,19 @@ def client_and_core(summary: str, typ: str) -> tuple[str, str]:
 
 
 def highlight_line(summary: str, typ: str) -> str:
-    """Concise 'Client: <minimal ticket info>' line for Key Highlights."""
-    client, core = client_and_core(summary, typ)
-    core = tidy_spacing(core)
-    if client and core:
-        return f"{client}: {core}"
-    return core or client
+    """Return a concise '<Report name> - <description>' display line."""
+    _, core = client_and_core(summary, typ)
+    report, _ = report_name_and_description(core, typ)
+    report = tidy_spacing(report or clean_asset_name(core) or core)
+    desc = tidy_spacing(core)
+    if report and desc:
+        if desc.lower() == report.lower():
+            return report
+        if desc.lower().startswith(report.lower()):
+            action = desc[len(report) :].strip(" -–—:")
+            return f"{report} - {action}" if action else report
+        return f"{report} - {desc}"
+    return report or desc
 
 
 def split_client_report_desc(summary: str, typ: str) -> tuple[str, str, str]:
@@ -182,7 +231,49 @@ def description_text(summary: str, typ: str) -> str:
     return tidy_spacing(core)
 
 
-def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atlassian.net") -> dict[str, Any]:
+def normalized_label(value: str) -> str:
+    """Case/separator-insensitive label key, so 'Looker-Exit' == 'looker_exit'."""
+    return re.sub(r"[^a-z0-9]", "", (value or "").lower())
+
+
+def categorize(
+    labels: list[str], summary: str, categories: dict[str, Any] | None = None
+) -> tuple[str, bool]:
+    """Return (category_key, matched_by_label).
+
+    Jira labels decide the bucket. Summary wording is only a fallback for
+    tickets whose labels say nothing about the release size categories.
+    """
+    cfg = categories or DEFAULT_CATEGORIES
+    label_to_category: dict[str, str] = {}
+    for category, values in (cfg.get("labels") or {}).items():
+        for value in values:
+            label_to_category[normalized_label(value)] = category
+
+    found = {
+        label_to_category[normalized_label(l)]
+        for l in (labels or [])
+        if normalized_label(l) in label_to_category
+    }
+    for category in cfg.get("priority") or cfg.get("order") or []:
+        if category in found:
+            return category, True
+
+    text = summary or ""
+    if LOOKER_SUMMARY.search(text):
+        return "looker_exits", False
+    if OPTIMIZE_SUMMARY.search(text):
+        return "optimizations", False
+    if NEW_REPORT_SUMMARY.search(text):
+        return "new_reports", False
+    return cfg.get("fallback") or "customizations", False
+
+
+def normalize_issue(
+    issue: dict[str, Any],
+    site: str = "https://abcfinancial.atlassian.net",
+    categories: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     fields = issue.get("fields") or {}
     key = issue.get("key") or ""
     project = (fields.get("project") or {}).get("key") or key.split("-")[0]
@@ -192,6 +283,8 @@ def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atl
     desc = description_text(summary, typ)
     highlight = highlight_line(summary, typ)
     parent = ((fields.get("parent") or {}).get("key")) or ""
+    labels = list(fields.get("labels") or [])
+    category, category_from_label = categorize(labels, summary, categories)
     return {
         "key": key,
         "parent": parent,
@@ -201,6 +294,9 @@ def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atl
         "report": report,
         "description": desc if desc else report,
         "highlight": highlight,
+        "labels": labels,
+        "category": category,
+        "category_from_label": category_from_label,
         "test_by": "",
         "comments": "",
         "testing_status": "",
@@ -209,5 +305,7 @@ def normalize_issue(issue: dict[str, Any], site: str = "https://abcfinancial.atl
     }
 
 
-def normalize_issues(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [normalize_issue(i) for i in issues]
+def normalize_issues(
+    issues: list[dict[str, Any]], categories: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    return [normalize_issue(i, categories=categories) for i in issues]

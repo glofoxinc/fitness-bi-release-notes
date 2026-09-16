@@ -10,3 +10,4 @@ venv/
 ReleaseNotes/
 .idea/
 .vscode/
+.playwright-mcp/

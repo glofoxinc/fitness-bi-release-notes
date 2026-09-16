@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
-from datetime import datetime
 from pathlib import Path
 
 from docx import Document
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.oxml.ns import qn
@@ -74,13 +73,35 @@ def add_heading_line(doc: Document, text: str, size=TITLE_SIZE, bold=True):
     return p
 
 
-def add_kv(doc: Document, label: str, value: str):
-    p = doc.add_paragraph()
-    r1 = p.add_run(f"{label}: ")
-    set_run_font(r1, bold=True, size=BODY_SIZE)
-    r2 = p.add_run(value)
-    set_run_font(r2, bold=False, size=BODY_SIZE)
-    return p
+def add_centered_header_block(doc: Document, pairs: list[tuple[str, str]]):
+    """Add a centered, borderless header block with aligned colons."""
+    table = doc.add_table(rows=len(pairs), cols=2)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+    for row, (label, value) in zip(table.rows, pairs):
+        label_cell, value_cell = row.cells
+        label_cell.width = Inches(1.9)
+        value_cell.width = Inches(2.7)
+
+        label_paragraph = label_cell.paragraphs[0]
+        label_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        label_paragraph.paragraph_format.space_after = Pt(0)
+        set_run_font(
+            label_paragraph.add_run(f"{label}:"),
+            bold=True,
+            size=BODY_SIZE,
+        )
+
+        value_paragraph = value_cell.paragraphs[0]
+        value_paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        value_paragraph.paragraph_format.space_after = Pt(0)
+        set_run_font(
+            value_paragraph.add_run(value or ""),
+            bold=False,
+            size=BODY_SIZE,
+        )
+    doc.add_paragraph()
+    return table
 
 
 def add_section_title(doc: Document, text: str):
@@ -181,13 +202,48 @@ def distinct_clients(tickets: list[dict], typ: str) -> list[str]:
     return seen
 
 
+CATEGORY_LABELS = {
+    "new_reports": "New Reports",
+    "customizations": "Customizations",
+    "looker_exits": "Looker Exits",
+    "optimizations": "Optimizations",
+}
+
+
+def category_counts(data: dict) -> list[dict]:
+    """Counts come from the builder; recompute only for older tickets JSON."""
+    rows = data.get("category_counts")
+    if rows:
+        return rows
+    counts = {key: 0 for key in CATEGORY_LABELS}
+    for t in data.get("tickets") or []:
+        key = t.get("category")
+        if key in counts:
+            counts[key] += 1
+    return [
+        {"key": key, "label": label, "count": counts[key]}
+        for key, label in CATEGORY_LABELS.items()
+    ]
+
+
+def change_action(ticket: dict) -> str:
+    """Return the change description without repeating the report name."""
+    report = (ticket.get("report") or "").strip()
+    description = (ticket.get("description") or "").strip()
+    if not description or description.lower() == report.lower():
+        return ""
+    if report and description.lower().startswith(report.lower()):
+        return description[len(report) :].strip(" -–—:")
+    return description
+
+
 def build_document(data: dict) -> Document:
     version = data["fix_version"]
     meta = data.get("meta") or {}
     narratives = data.get("narratives") or {}
     tickets = data.get("tickets") or []
     excluded = data.get("excluded") or []
-    mode = data.get("mode", "pre")
+    post = data.get("mode", "pre") == "post"
 
     release_date = data.get("release_date") or parse_release_date(version)
     analyze_clients = distinct_clients(tickets, "Analyze")
@@ -201,182 +257,106 @@ def build_document(data: dict) -> Document:
     section.right_margin = Inches(0.7)
 
     add_heading_line(doc, "Release Notes", size=18)
-    add_kv(doc, "Version", f"v{version}")
-    add_kv(doc, "Release Date", release_date)
-    add_kv(doc, "Development Team", meta.get("development_team", ""))
-    add_kv(doc, "Release Owner", meta.get("release_owner", ""))
-    add_kv(doc, "Senior Manager", meta.get("senior_manager", ""))
-    add_kv(doc, "Director", meta.get("director", ""))
-    add_kv(doc, "SVP", meta.get("svp", ""))
-    add_kv(doc, "Environment", meta.get("environment", "Production"))
+    add_centered_header_block(
+        doc,
+        [
+            ("Version", f"v{version}"),
+            ("Release Date", release_date),
+            ("Development Team", meta.get("development_team", "")),
+            ("Release Owner", meta.get("release_owner", "")),
+            ("Senior Manager", meta.get("senior_manager", "")),
+            ("SVP", meta.get("svp", "")),
+            ("Environment", meta.get("environment", "Production")),
+        ],
+    )
 
-    add_section_title(doc, "Release Summary")
+    # One summary section only: brief description followed by the delivery counts.
+    add_section_title(doc, "Release Summary:")
     add_body(
         doc,
         narratives.get("release_summary")
         or "This release includes reporting enhancements, custom client updates, and semantic model improvements.",
     )
+    size_rows = category_counts(data)
+    add_table(
+        doc,
+        ["Category", "Count"],
+        [[row["label"], str(row["count"])] for row in size_rows]
+        + [["Total", str(sum(row["count"] for row in size_rows))]],
+    )
 
-    add_section_title(doc, "Key Highlights")
-    highlights = []
+    add_section_title(doc, "Reports / Dashboards Delivered:")
+    delivered = []
     for t in tickets:
-        # Key Highlights shows concise ticket info and is independent of the
-        # name-only Report column. Falls back to Client: Report only if needed.
-        line = t.get("highlight")
-        if not line:
-            client = t.get("client") or ""
-            report = t.get("report") or t.get("description") or ""
-            line = f"{client}: {report}" if client and report else report
+        parts = [t.get("client") or "", t.get("report") or ""]
+        action = change_action(t)
+        if action:
+            parts.append(action)
+        line = " - ".join(part for part in parts if part)
         if line:
-            highlights.append(line)
-    add_bullets(doc, highlights or ["(No tickets found)"])
+            delivered.append(line)
+    add_bullets(doc, delivered or ["(No tickets found)"])
 
     add_section_title(doc, "Affected Clients:")
-    add_body(doc, "Analyze Clients")
-    if analyze_clients:
-        add_bullets(doc, ["All Analyze-based (Standard) clients"])
-    else:
-        add_bullets(doc, ["None in this release"])
-
-    add_section_title(doc, "Custom Clients Summary:")
-    add_body(
-        doc,
-        narratives.get("custom_clients_summary")
-        or (
-            "This release includes updates to existing functionality, semantic model changes, "
-            "column additions, and new report creation for custom clients."
-            if custom_clients
-            else "No custom client changes in this release."
-        ),
-    )
-    if custom_clients:
-        add_bullets(doc, custom_clients)
-
-    add_section_title(doc, "Standard & Custom Summary:")
-    add_body(
-        doc,
-        narratives.get("standard_custom_summary")
-        or (
-            "This release improves reporting usability through dashboard restructuring, clearer "
-            "report metrics, and standardized paginated report formatting alongside custom client enhancements."
-        ),
-    )
-
-    add_section_title(doc, "Dashboards / Reports:")
-    dash = []
-    for t in tickets:
-        client = t.get("client") or ""
-        report = t.get("report") or ""
-        if client and report:
-            dash.append(f"{client} - {report}")
-        elif report:
-            dash.append(report)
-    add_bullets(doc, dash or ["(None)"])
+    affected = list(analyze_clients) + [c for c in custom_clients if c not in analyze_clients]
+    add_bullets(doc, affected or ["None in this release"])
 
     add_section_title(doc, "Deployment Details:")
-    deploy_clients = []
-    if analyze_clients:
-        deploy_clients.append("Analyze")
-    for c in custom_clients:
-        if c not in deploy_clients:
-            deploy_clients.append(c)
-    deploy_rows = []
-    for c in deploy_clients:
-        # Pre-deploy: leave owner/status/id blank for the team
-        deploy_rows.append([c, "", "", ""])
-    if not deploy_rows:
-        deploy_rows.append(["", "", "", ""])
+    deploy_clients = list(analyze_clients) + [
+        client for client in custom_clients if client not in analyze_clients
+    ]
     add_table(
         doc,
         ["Client", "Deployment Owner", "Status", "Deployment ID & Time"],
-        deploy_rows,
+        [[client, "", "", ""] for client in deploy_clients]
+        or [["", "", "", ""]],
     )
 
-    add_section_title(doc, "Change Details:")
-    change_rows = []
-    for idx, t in enumerate(tickets, start=1):
-        change_rows.append(
-            [
-                str(idx),
-                t.get("key", ""),
-                t.get("parent", ""),
-                t.get("link", ""),
-                t.get("type", ""),
-                t.get("client", ""),
-                t.get("report", ""),
-                t.get("description", ""),
-                t.get("test_by", "") if mode == "post" else "",
-                t.get("comments", "") if mode == "post" else "",
-                t.get("testing_status", "") if mode == "post" else "",
-            ]
-        )
-    change_table = add_table(
-        doc,
+    add_section_title(doc, "Ticket Details:")
+    ticket_rows = [
         [
-            "S.No",
-            "Ticket#",
-            "Parent",
-            "Link",
-            "Type",
-            "Client",
-            "Report",
-            "Description",
-            "Test by",
-            "Comments",
-            "Testing Status",
-        ],
-        change_rows or [["", "", "", "", "", "", "", "", "", "", ""]],
+            ticket.get("key", ""),
+            ticket.get("link", ""),
+            ticket.get("test_by", "") if post else "",
+            ticket.get("deployment_status", "") if post else "",
+        ]
+        for ticket in tickets
+    ]
+    ticket_table = add_table(
+        doc,
+        ["Ticket", "Ticket Link", "Test", "Status"],
+        ticket_rows or [["", "", "", ""]],
     )
     for row_index, ticket in enumerate(tickets, start=1):
-        set_cell_hyperlink(change_table.rows[row_index].cells[3], ticket.get("link", ""))
-
-    add_section_title(doc, "Sanity Checklist After Production Deployment:")
-    add_bullets(
-        doc,
-        [
-            "Report loads successfully - Yes/No",
-            "Paginated report works correctly after applying parameters - Yes/No",
-            "Applied changes are reflected as expected - Yes/No",
-            "Existing functionalities/changes are not impacted - Yes/No",
-        ],
-    )
-
-    add_section_title(doc, "Screenshots:")
-    # Heading only — team adds screenshots later; do not add placeholder text.
-
-    add_section_title(doc, "Tickets Excluded from Deployment")
-    excl_rows = []
-    for idx, t in enumerate(excluded, start=1):
-        excl_rows.append(
-            [
-                str(idx),
-                t.get("key", ""),
-                t.get("parent", ""),
-                t.get("link", ""),
-                t.get("type", ""),
-                t.get("client", ""),
-                t.get("report", ""),
-                t.get("description", ""),
-                t.get("notes", ""),
-            ]
+        set_cell_hyperlink(
+            ticket_table.rows[row_index].cells[1],
+            ticket.get("link", ""),
         )
+
+    add_section_title(doc, "Testing Evidence:")
+
+    add_section_title(doc, "Tickets Excluded from Deployment:")
+    excluded_headers = ["Ticket", "Ticket Link", "Client", "Report", "Notes"]
+    excluded_rows = [
+        [
+            ticket.get("key", ""),
+            ticket.get("link", ""),
+            ticket.get("client", ""),
+            ticket.get("report", ""),
+            ticket.get("notes", ""),
+        ]
+        for ticket in excluded
+    ]
     excluded_table = add_table(
         doc,
-        [
-            "S.No",
-            "Ticket#",
-            "Parent",
-            "Link",
-            "Type",
-            "Client",
-            "Report",
-            "Description",
-            "Notes",
-        ],
-        excl_rows or [["", "", "", "", "", "", "", "", ""]],
+        excluded_headers,
+        excluded_rows or [[""] * len(excluded_headers)],
     )
     for row_index, ticket in enumerate(excluded, start=1):
-        set_cell_hyperlink(excluded_table.rows[row_index].cells[3], ticket.get("link", ""))
+        set_cell_hyperlink(
+            excluded_table.rows[row_index].cells[1],
+            ticket.get("link", ""),
+        )
 
     return doc
 
