@@ -1,4 +1,4 @@
-"""Put generated release notes where the SharePoint upload can pick them up.
+"""Put generated deployment notes where the SharePoint upload can pick them up.
 
 Two modes, chosen by sharepoint.upload_method in config.json:
 
@@ -19,6 +19,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import quote, urlsplit
 
 
 def month_folder_from_version(fix_version: str) -> str:
@@ -32,9 +33,48 @@ def month_folder_from_version(fix_version: str) -> str:
     return f"{year}-{month:02d}"
 
 
+def notes_docx_name(fix_version: str, sharepoint: dict | None = None) -> str:
+    """File name for the generated Word doc, e.g. Deployment Notes 2026.3.09.23.docx."""
+    prefix = ((sharepoint or {}).get("docx_prefix") or "Deployment Notes").strip()
+    return f"{prefix} {fix_version}.docx"
+
+
 def relative_upload_folders(sharepoint: dict, fix_version: str) -> tuple[str, str]:
     root_folder = (sharepoint.get("folder_name") or "deployment bot release notes").strip()
     return root_folder, month_folder_from_version(fix_version)
+
+
+def _sharepoint_origin(sharepoint: dict) -> str:
+    parsed = urlsplit((sharepoint.get("site_url") or "").rstrip("/"))
+    if not parsed.scheme or not parsed.netloc:
+        raise ValueError("sharepoint.site_url must be a complete URL")
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def sharepoint_file_url(
+    sharepoint: dict,
+    fix_version: str,
+    *,
+    download: bool = False,
+) -> str:
+    """Direct uploaded-file URL, optionally requesting a browser download."""
+    root, month = relative_upload_folders(sharepoint, fix_version)
+    base = (sharepoint.get("server_relative_folder") or "").rstrip("/")
+    path = f"{base}/{root}/{month}/{notes_docx_name(fix_version, sharepoint)}"
+    url = f"{_sharepoint_origin(sharepoint)}{quote(path, safe='/')}"
+    return f"{url}?download=1" if download else url
+
+
+def sharepoint_month_folder_url(sharepoint: dict, fix_version: str) -> str:
+    """SharePoint library view opened at the exact deployment month folder."""
+    root, month = relative_upload_folders(sharepoint, fix_version)
+    base = (sharepoint.get("server_relative_folder") or "").rstrip("/")
+    folder = f"{base}/{root}/{month}"
+    site = (sharepoint.get("site_url") or "").rstrip("/")
+    return (
+        f"{site}/Shared%20Documents/Forms/AllItems.aspx"
+        f"?id={quote(folder, safe='')}"
+    )
 
 
 def destination_dir(sharepoint: dict, fix_version: str) -> Path:
@@ -61,7 +101,7 @@ def upload_docx(
         )
     src = Path(docx_path)
     if not src.is_file():
-        raise FileNotFoundError(f"Release notes file not found: {src}")
+        raise FileNotFoundError(f"Deployment notes file not found: {src}")
     dest_dir = destination_dir(sharepoint, fix_version)
     dest_dir.mkdir(parents=True, exist_ok=True)
     dest = dest_dir / src.name
@@ -73,7 +113,7 @@ def stage_for_browser(docx_path: Path, sharepoint: dict, repo_root: Path) -> Pat
     """Copy the .docx inside the repo so the Playwright browser can upload it."""
     src = Path(docx_path)
     if not src.is_file():
-        raise FileNotFoundError(f"Release notes file not found: {src}")
+        raise FileNotFoundError(f"Deployment notes file not found: {src}")
     staging = repo_root / (sharepoint.get("staging_dir") or ".playwright-mcp")
     staging.mkdir(parents=True, exist_ok=True)
     dest = staging / src.name
@@ -82,7 +122,7 @@ def stage_for_browser(docx_path: Path, sharepoint: dict, repo_root: Path) -> Pat
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Upload or stage release notes for SharePoint.")
+    parser = argparse.ArgumentParser(description="Upload or stage deployment notes for SharePoint.")
     parser.add_argument("--docx", required=True, help="Path to generated .docx")
     parser.add_argument("--config", required=True, help="Path to config.json")
     parser.add_argument(

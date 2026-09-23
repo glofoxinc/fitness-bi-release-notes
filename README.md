@@ -1,6 +1,6 @@
 # Deployment Bot
 
-**Deployment Bot** is a Cursor Agent Skill that builds **pre-deployment release notes** from Jira Fix Versions, writes a Word doc matching the team template, and copies it into the team SharePoint folder.
+**Deployment Bot** is a Cursor Agent Skill that builds **pre-deployment deployment notes** from Jira Fix Versions, writes a Word doc matching the team template, and copies it into the team SharePoint folder.
 
 **Repo:** [glofoxinc/fitness-bi-release-notes](https://github.com/glofoxinc/fitness-bi-release-notes)  
 **Skill path:** `.cursor/skills/deployment-bot/`  
@@ -9,11 +9,17 @@
 ## What Deployment Bot does
 
 1. Reads all Jira tickets on a Fix Version (deployment date, e.g. `2026.3.08.12`)
-2. Classifies **Analyze** (`AN`) vs **Custom** (`PIC`) and extracts client / report names
-3. Generates a Word release notes doc (Cambria; body 12 / headings 14)
-4. Leaves blank for the team to fill after deploy: Deployment IDs, Test by, Sanity answers; Screenshots is heading-only
+2. Identifies Glofox Jira projects and accepts only **Glofox Analytics** (`AN`) and **Insights Customize** (`PIC`)
+3. Requires every included ticket to have at least one attached PR and all attached PRs merged
+4. Classifies **Analyze** (`AN`) vs **Custom** (`PIC`) and extracts client / report names
+5. Generates a Word deployment notes doc (Cambria; body 12 / headings 14)
+6. Leaves blank for the team to fill after deploy: Deployment IDs, Test by, Sanity answers; Screenshots is heading-only
 
-SharePoint upload: after generate, the bot creates `deployment bot release notes` / `YYYY-MM` (from the Fix Version) under the team Release Notes library and uploads the `.docx` there.
+**Lineage:** check that every included ticket has a merged PR → generate deployment notes → upload to SharePoint → create the SHIPIT ticket in Review Ready. Slack is a later step.
+
+SharePoint upload and the SHIPIT Change Request happen in the same generate run. The bot then tells you the PR check passed (each ticket, merged), where the notes live, and the SHIPIT URL. It does **not** post to Slack until you ask.
+
+If any included ticket has no attached PR or a PR that is not merged, the bot pauses before generating, uploading, or creating SHIPIT, and lists the blocking tickets.
 
 ## Prerequisites (each teammate)
 
@@ -32,29 +38,37 @@ py -3 -m pip install python-docx
 In Cursor chat:
 
 ```text
-Deployment Bot: generate release notes for Fix Version 2026.3.08.12
+Deployment Bot: generate deployment notes for Fix Version 2026.3.08.12
 ```
 
-That one prompt generates the Word file **and** uploads it to `deployment bot release notes` / `YYYY-MM`. You do not need a second prompt for SharePoint.
+That one prompt checks PRs, generates the Word file, uploads it to `deployment bot release notes` / `YYYY-MM`, and creates the SHIPIT Change Request in **Review Ready**. You do not need a second prompt for SharePoint or the ticket.
 
-Create the SHIPIT Change Request only when you ask, for example:
+A ticket-only prompt still works if notes already exist:
 
 ```text
 Create the Jira ticket for Fix Version 2026.3.09.16
 ```
 
-Notify Slack only when you ask (both `#insights-customize-squad` and `#customize-bi-buddies`; Sushma + Trent in the squad channel, Sushma only in Buddies):
+Reporter defaults to the Atlassian user connected in Cursor and assignee defaults to blank. You can override either or both:
+
+```text
+Create the Jira ticket with Reporter Jane Smith and Assignee John Doe
+```
+
+The bot resolves the supplied names to Jira accounts and asks for clarification if a name is ambiguous.
+
+Notify Slack **only** when you later ask (both `#insights-customize-squad` and `#customize-bi-buddies`; Sushma + Sai + Zeke + Eoin in the squad channel, Sushma only in Buddies):
 
 ```text
 Notify Slack for this deployment
 ```
 
-Do not expect Slack posts from generate-only or generate+Jira prompts.
+Do not expect Slack posts from generate notes / create ticket. After that run the bot should say the PRs are merged and wait for this prompt.
 
 Or simply:
 
 ```text
-Generate release notes for Fix Version 2026.3.08.12
+Generate deployment notes for Fix Version 2026.3.08.12
 ```
 
 ### Remove a ticket from the document
@@ -62,7 +76,7 @@ Generate release notes for Fix Version 2026.3.08.12
 Fix Version can stay on the ticket in Jira. Tell Deployment Bot in the prompt:
 
 ```text
-Generate release notes for Fix Version 2026.3.08.12, remove AN-5468 from deployment
+Generate deployment notes for Fix Version 2026.3.08.12, remove AN-5468 from deployment
 ```
 
 - Ticket is **omitted** from Key Highlights, Dashboards/Reports, Change Details, etc.
@@ -80,7 +94,10 @@ Deployment Bot follows `.cursor/skills/deployment-bot/SKILL.md` — that file is
 
 | Rule | Behavior |
 |---|---|
-| **Release Owner** | Left blank unless you provide a name |
+| **Deployment Owner** | Left blank unless you provide a name |
+| **Jira project scope** | Glofox accepts AN and PIC only; unknown projects stop instead of being guessed |
+| **PR merge gate** | Every included ticket needs at least one attached PR and all attached PRs merged; after notes + ticket the bot states that result |
+| **SHIPIT reporter / assignee** | Defaults remain authenticated reporter + blank assignee; explicit names override them |
 | **Key Highlights** | Client + concise ticket info |
 | **Dashboards / Reports & table Report column** | Report / dashboard / model name only (`All Reports` when Analyze has no named asset) |
 | **Screenshots** | Heading only — no placeholder text underneath |
@@ -96,6 +113,7 @@ Deployment Bot follows `.cursor/skills/deployment-bot/SKILL.md` — that file is
   document-structure.md    # Doc sections + JSON schema
   scripts/
     normalize_tickets.py
+    check_pr_merge_status.py
     generate_release_notes.py
     build_from_jira_json.py
     upload_to_sharepoint.py
@@ -106,10 +124,11 @@ Deployment Bot follows `.cursor/skills/deployment-bot/SKILL.md` — that file is
 
 ## Team notes
 
-- Leave **Release Owner** blank unless the user provides a name for that deployment
+- Leave **Deployment Owner** blank unless the user provides a name for that deployment
 - Do **not** invent Deployment IDs, testers, or screenshots in pre-deploy mode
 - **Screenshots** section is heading-only; paste images after deploy
 - Custom client names are parsed from PIC ticket summaries
+- Ignite can be added later as a separate configured product once its Jira project keys are approved
 - Update `config.json` defaults if leadership names change
 - Open this repo in Cursor so the project skill (Deployment Bot) is loaded
 

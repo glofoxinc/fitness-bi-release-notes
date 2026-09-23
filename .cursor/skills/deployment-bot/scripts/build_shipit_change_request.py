@@ -13,8 +13,16 @@ import json
 import sys
 from pathlib import Path
 
-from normalize_tickets import normalize_issues
-from upload_to_sharepoint import month_folder_from_version
+from normalize_tickets import (
+    assert_supported_projects,
+    configured_project_types,
+    normalize_issues,
+)
+from upload_to_sharepoint import (
+    notes_docx_name,
+    sharepoint_file_url,
+    sharepoint_month_folder_url,
+)
 
 
 def calendar_parts(fix_version: str) -> tuple[int, int, int]:
@@ -61,15 +69,7 @@ def month_name(month: int) -> str:
 
 
 def sharepoint_docx_url(sharepoint: dict, fix_version: str) -> str:
-    site = (sharepoint.get("site_url") or "").rstrip("/")
-    month = month_folder_from_version(fix_version)
-    root = sharepoint.get("folder_name") or "deployment bot release notes"
-    filename = f"Release Notes {fix_version}.docx"
-    path = (
-        "/Shared%20Documents/Glofox%20-%20Customize/Release%20Notes/"
-        f"{root.replace(' ', '%20')}/{month}/{filename.replace(' ', '%20')}"
-    )
-    return f"{site}{path}"
+    return sharepoint_file_url(sharepoint, fix_version)
 
 
 def adf_text(text: str, *, strong: bool = False) -> dict:
@@ -115,17 +115,31 @@ def build_payload(
     config: dict,
     *,
     test_ticket: bool = False,
+    reporter_account_id: str = "",
+    reporter_name: str = "",
+    assignee_account_id: str = "",
+    assignee_name: str = "",
 ) -> dict:
     shipit = config.get("shipit") or {}
     sharepoint = config.get("sharepoint") or {}
     site = config.get("jira_site") or "https://abcfinancial.atlassian.net"
-    rows = normalize_issues(issues, categories=config.get("summary_categories"))
+    project_types = configured_project_types(config)
+    assert_supported_projects(issues, project_types)
+    rows = normalize_issues(
+        issues,
+        categories=config.get("summary_categories"),
+        project_types=project_types,
+    )
     if not rows:
         raise ValueError("No tickets to put on the Change Request.")
 
     window = planned_window(fix_version, shipit)
     notes_url = sharepoint_docx_url(sharepoint, fix_version)
-    notes_name = f"Release Notes {fix_version}.docx"
+    notes_download_url = sharepoint_file_url(
+        sharepoint, fix_version, download=True
+    )
+    notes_folder_url = sharepoint_month_folder_url(sharepoint, fix_version)
+    notes_name = notes_docx_name(fix_version, sharepoint)
     clients = list(dict.fromkeys(r["client"] for r in rows))
     reports = list(dict.fromkeys(r["report"] for r in rows))
     keys = [r["key"] for r in rows]
@@ -173,7 +187,7 @@ def build_payload(
         "**Supporting records**\n\n"
         f"{ticket_lines}\n"
         f"* Planned window on this request: {window['label']}\n"
-        f"* Release notes: [{notes_name}]({notes_url})\n"
+        f"* Deployment notes: [{notes_name}]({notes_url})\n"
     )
     if test_ticket:
         description += (
@@ -247,7 +261,7 @@ def build_payload(
         adf_para(
             adf_text(
                 "Notify stakeholders when verification checklist passes. "
-                "Then share Product/CSM release notes."
+                "Then share Product/CSM deployment notes."
             )
         ),
         adf_para(adf_text("After rollback", strong=True)),
@@ -346,7 +360,7 @@ def build_payload(
         )
     test_plan_nodes.append(
         adf_para(
-            adf_text("Release notes: "),
+            adf_text("Deployment notes: "),
             adf_link(notes_name, notes_url),
         )
     )
@@ -407,15 +421,37 @@ def build_payload(
         "customfield_17225": adf_doc(*risk_blocks),
         "customfield_11762": adf_doc(*test_plan_nodes),
     }
+    if reporter_account_id:
+        additional_fields["reporter"] = {"accountId": reporter_account_id}
 
     return {
         "projectKey": shipit.get("project_key") or "SHIPIT",
         "issueTypeName": shipit.get("issue_type") or "Change Request",
         "summary": summary,
         "description": description,
-        "assignee_account_id": None,
-        "leave_assignee_blank": True,
+        "assignee_account_id": assignee_account_id or None,
+        "leave_assignee_blank": not bool(assignee_account_id),
         "leave_request_type_blank": True,
+        "people": {
+            "reporter": {
+                "name": reporter_name,
+                "account_id": reporter_account_id,
+                "uses_authenticated_user": not bool(reporter_account_id),
+            },
+            "assignee": {
+                "name": assignee_name,
+                "account_id": assignee_account_id,
+                "left_blank": not bool(assignee_account_id),
+            },
+        },
+        "transition_after_create": {
+            "status_name": shipit.get("create_in_status") or "Review Ready",
+            "status_id": shipit.get("create_in_status_id") or "14545",
+            "note": (
+                "After create, call getTransitionsForJiraIssue and apply the transition "
+                "whose destination status is Review Ready. Do not approve, complete, or cancel."
+            ),
+        },
         "additional_fields": additional_fields,
         "link": {
             "type": shipit.get("link_type") or "Discovery - Connected",
@@ -423,6 +459,8 @@ def build_payload(
             "note": "For each key: inwardIssue=work ticket, outwardIssue=new SHIPIT key.",
         },
         "sharepoint_url": notes_url,
+        "sharepoint_download_url": notes_download_url,
+        "sharepoint_folder_url": notes_folder_url,
         "jira_site": site,
     }
 
@@ -433,6 +471,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fix-version", required=True)
     parser.add_argument("--config", required=True)
     parser.add_argument("--test-ticket", action="store_true")
+    parser.add_argument("--reporter-account-id", default="")
+    parser.add_argument("--reporter-name", default="")
+    parser.add_argument("--assignee-account-id", default="")
+    parser.add_argument("--assignee-name", default="")
     parser.add_argument("--output-json", default="")
     args = parser.parse_args(argv)
 
@@ -445,6 +487,10 @@ def main(argv: list[str] | None = None) -> int:
             args.fix_version,
             config,
             test_ticket=args.test_ticket,
+            reporter_account_id=args.reporter_account_id,
+            reporter_name=args.reporter_name,
+            assignee_account_id=args.assignee_account_id,
+            assignee_name=args.assignee_name,
         )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)

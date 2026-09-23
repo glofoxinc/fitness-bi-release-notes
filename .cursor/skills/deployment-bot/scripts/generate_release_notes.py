@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Fitness BI release notes Word doc from tickets JSON."""
+"""Generate Fitness BI deployment notes Word doc from tickets JSON."""
 
 from __future__ import annotations
 
@@ -245,7 +245,7 @@ def build_document(data: dict) -> Document:
     excluded = data.get("excluded") or []
     post = data.get("mode", "pre") == "post"
 
-    release_date = data.get("release_date") or parse_release_date(version)
+    deployment_date = data.get("release_date") or parse_release_date(version)
     analyze_clients = distinct_clients(tickets, "Analyze")
     custom_clients = distinct_clients(tickets, "Custom")
 
@@ -256,14 +256,17 @@ def build_document(data: dict) -> Document:
     section.left_margin = Inches(0.7)
     section.right_margin = Inches(0.7)
 
-    add_heading_line(doc, "Release Notes", size=18)
+    add_heading_line(doc, "Deployment notes", size=18)
     add_centered_header_block(
         doc,
         [
             ("Version", f"v{version}"),
-            ("Release Date", release_date),
+            ("Deployment Date", deployment_date),
             ("Development Team", meta.get("development_team", "")),
-            ("Release Owner", meta.get("release_owner", "")),
+            (
+                "Deployment Owner",
+                meta.get("deployment_owner", meta.get("release_owner", "")),
+            ),
             ("Senior Manager", meta.get("senior_manager", "")),
             ("SVP", meta.get("svp", "")),
             ("Environment", meta.get("environment", "Production")),
@@ -271,11 +274,12 @@ def build_document(data: dict) -> Document:
     )
 
     # One summary section only: brief description followed by the delivery counts.
-    add_section_title(doc, "Release Summary:")
+    add_section_title(doc, "Deployment Summary:")
     add_body(
         doc,
-        narratives.get("release_summary")
-        or "This release includes reporting enhancements, custom client updates, and semantic model improvements.",
+        narratives.get("deployment_summary")
+        or narratives.get("release_summary")
+        or "This deployment includes reporting enhancements, custom client updates, and semantic model improvements.",
     )
     size_rows = category_counts(data)
     add_table(
@@ -299,7 +303,7 @@ def build_document(data: dict) -> Document:
 
     add_section_title(doc, "Affected Clients:")
     affected = list(analyze_clients) + [c for c in custom_clients if c not in analyze_clients]
-    add_bullets(doc, affected or ["None in this release"])
+    add_bullets(doc, affected or ["None in this deployment"])
 
     add_section_title(doc, "Deployment Details:")
     deploy_clients = list(analyze_clients) + [
@@ -362,7 +366,7 @@ def build_document(data: dict) -> Document:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Fitness BI release notes DOCX")
+    parser = argparse.ArgumentParser(description="Generate Fitness BI deployment notes DOCX")
     parser.add_argument("--input", required=True, help="Path to tickets JSON")
     parser.add_argument("--output", required=True, help="Output DOCX path")
     args = parser.parse_args()

@@ -10,8 +10,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from normalize_tickets import ANALYZE_CLIENT, DEFAULT_CATEGORIES, normalize_issues  # noqa: E402
+from normalize_tickets import (  # noqa: E402
+    ANALYZE_CLIENT,
+    DEFAULT_CATEGORIES,
+    assert_supported_projects,
+    configured_project_types,
+    normalize_issues,
+)
 from generate_release_notes import build_document, MONTHS  # noqa: E402
+from check_pr_merge_status import assert_all_prs_merged  # noqa: E402
 
 
 def find_release_date(fix_version: str, issues: list) -> str:
@@ -42,7 +49,7 @@ def size_sentence(
     has_analyze: bool = False,
     custom_clients: list[str] | None = None,
 ) -> str:
-    """The single Release Summary: brief description plus the delivery counts."""
+    """The single Deployment Summary: description plus delivery counts."""
     forms = categories.get("sentence") or DEFAULT_CATEGORIES["sentence"]
     parts = []
     for row in category_counts:
@@ -53,7 +60,7 @@ def size_sentence(
         parts.append(f"{count} {singular if count == 1 else plural}")
 
     if not parts:
-        return "This release contains no deliverables in the tracked categories."
+        return "This deployment contains no deliverables in the tracked categories."
     if len(parts) == 1:
         counts_text = parts[0]
     else:
@@ -64,17 +71,23 @@ def size_sentence(
         scope.append(ANALYZE_CLIENT)
     scope.extend(custom_clients or [])
     if not scope:
-        return f"This release delivers {counts_text}."
+        return f"This deployment delivers {counts_text}."
     if len(scope) == 1:
         scope_text = scope[0]
     else:
         scope_text = ", ".join(scope[:-1]) + f", and {scope[-1]}"
-    return f"This release delivers {counts_text} for {scope_text}."
+    return f"This deployment delivers {counts_text} for {scope_text}."
 
 
 def build_payload(fix_version: str, issues: list, config: dict) -> dict:
     categories = config.get("summary_categories") or DEFAULT_CATEGORIES
-    tickets = normalize_issues(issues, categories)
+    project_types = configured_project_types(config)
+    assert_supported_projects(issues, project_types)
+    tickets = normalize_issues(
+        issues,
+        categories,
+        project_types=project_types,
+    )
     category_counts = count_categories(tickets, categories)
     has_analyze = any(t["type"] == "Analyze" for t in tickets)
     customs = []
@@ -82,7 +95,9 @@ def build_payload(fix_version: str, issues: list, config: dict) -> dict:
         if t["type"] == "Custom" and t["client"] not in customs and t["client"] != "Unknown":
             customs.append(t["client"])
 
-    release_summary = size_sentence(category_counts, categories, has_analyze, customs)
+    deployment_summary = size_sentence(
+        category_counts, categories, has_analyze, customs
+    )
 
     return {
         "fix_version": fix_version,
@@ -90,7 +105,7 @@ def build_payload(fix_version: str, issues: list, config: dict) -> dict:
         "mode": "pre",
         "meta": config.get("defaults", {}),
         "narratives": {
-            "release_summary": release_summary,
+            "deployment_summary": deployment_summary,
         },
         "category_counts": category_counts,
         "tickets": tickets,
@@ -112,6 +127,11 @@ def main():
     raw = json.loads(Path(args.jira_json).read_text(encoding="utf-8"))
     issues = raw["issues"] if isinstance(raw, dict) else raw
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    try:
+        assert_all_prs_merged(issues, config)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     payload = build_payload(args.fix_version, issues, config)
 
     out_json = Path(args.output_json)
@@ -136,4 +156,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

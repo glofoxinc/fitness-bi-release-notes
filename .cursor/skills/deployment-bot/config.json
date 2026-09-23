@@ -4,9 +4,28 @@
   "cloud_id": "5c639b1d-82c0-4932-96af-65d4921fcf57",
   "analyze_projects": ["AN"],
   "custom_projects": ["PIC"],
+  "jira_project_scope": {
+    "active_product": "glofox",
+    "products": {
+      "glofox": {
+        "display_name": "Glofox",
+        "projects": {
+          "AN": {
+            "board_name": "Glofox Analytics",
+            "type": "Analyze"
+          },
+          "PIC": {
+            "board_name": "Insights Customize",
+            "type": "Custom"
+          }
+        }
+      }
+    },
+    "notes": "Only AN and PIC are supported for Glofox today. Add a separate product entry and project mappings when Ignite project keys are approved."
+  },
   "defaults": {
     "development_team": "Customize BI Team",
-    "release_owner": "",
+    "deployment_owner": "",
     "senior_manager": "Sushma Bhamidipati",
     "svp": "Rahul Das",
     "environment": "Production"
@@ -41,6 +60,14 @@
     },
     "fallback": "customizations"
   },
+  "pull_request_gate": {
+    "enabled": true,
+    "jira_development_field": "customfield_10500",
+    "require_attached_pr": true,
+    "require_all_merged": true,
+    "merged_state": "MERGED",
+    "notes": "Run scripts/check_pr_merge_status.py before generating. Pause and list blocking tickets when any included ticket has no attached PR or any attached PR is not merged. Jira workflow status is not proof of merge."
+  },
   "output_dir": "C:\\Users\\RMon01\\Downloads\\ReleaseNotes",
   "sharepoint": {
     "enabled": true,
@@ -50,14 +77,18 @@
     "server_relative_folder": "/teams/ABCFitnessSolutionsLLC-Glofox-Customize/Shared Documents/Glofox - Customize/Release Notes",
     "folder_url": "https://abcfinancial.sharepoint.com/teams/ABCFitnessSolutionsLLC-Glofox-Customize/Shared%20Documents/Forms/AllItems.aspx?id=%2Fteams%2FABCFitnessSolutionsLLC%2DGlofox%2DCustomize%2FShared%20Documents%2FGlofox%20%2D%20Customize%2FRelease%20Notes",
     "folder_name": "deployment bot release notes",
+    "docx_title": "Deployment notes",
+    "docx_prefix": "Deployment Notes",
     "month_folder_pattern": "YYYY-MM",
     "staging_dir": ".playwright-mcp",
     "local_sync_path": "",
-    "notes": "Live layout: Release Notes / deployment bot release notes / YYYY-MM / Release Notes <VERSION>.docx. Browser upload unless the library is synced."
+    "notes": "Live layout: existing SharePoint library / deployment bot release notes / YYYY-MM / Deployment Notes <VERSION>.docx. Document heading is Deployment notes. Browser upload unless the library is synced."
   },
   "shipit": {
     "project_key": "SHIPIT",
     "issue_type": "Change Request",
+    "create_in_status": "Review Ready",
+    "create_in_status_id": "14545",
     "link_type": "Discovery - Connected",
     "priority": "Medium",
     "change_type": "Normal",
@@ -68,9 +99,11 @@
     "planned_start_local": "10:30",
     "planned_end_local": "12:30",
     "timezone_offset": "+0530",
-    "leave_assignee_blank": true,
+    "leave_assignee_blank_unless_requested": true,
+    "allow_reporter_override": true,
+    "allow_assignee_override": true,
     "leave_request_type_blank": true,
-    "notes": "Reporter is whoever is signed in to Atlassian MCP. Do not set Request Type (API cannot stamp Manual Change)."
+    "notes": "By default reporter is the authenticated Atlassian user and assignee is blank. When the user explicitly names a reporter or assignee, resolve each with lookupJiraAccountId and set that account. Do not set Request Type (API cannot stamp Manual Change). After create, transition to Review Ready. Do not approve, complete, or cancel."
   },
   "slack": {
     "enabled": true,
@@ -85,7 +118,7 @@
         "id": "C08HB93PEVD",
         "name": "insights-customize-squad",
         "kind": "public",
-        "cc": ["U08LDAQ7SDV", "U0ASR2XGRPZ"]
+        "cc": ["U08LDAQ7SDV", "U0BSG4ABZC0", "U083R8TP1J9", "U01H0UL5JGP"]
       },
       {
         "id": "C08KM1USMM1",
@@ -96,10 +129,12 @@
     ],
     "mentions": {
       "sushma_bhamidipati": "U08LDAQ7SDV",
-      "trent_vanest": "U0ASR2XGRPZ"
+      "sai_anirudh_karre": "U0BSG4ABZC0",
+      "zeke_brustkern": "U083R8TP1J9",
+      "eoin_george": "U01H0UL5JGP"
     },
-    "cc_rule": "CC Sushma only in #customize-bi-buddies. CC Sushma and Trent in #insights-customize-squad.",
-    "template": "Hello Team,\n\nOur upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.\nRelease notes and the deployment ticket are below for reference:\n\nSharePoint: [{filename}]({sharepoint_url})\nService Desk: [{shipit_key}]({shipit_url})\n\nThanks!{cc_line}",
-    "notes": "Do not post while training. Do not post on generate-only or generate+SHIPIT unless the user explicitly asks to notify Slack. Live test is a real deployment prompt only."
+    "cc_rule": "CC Sushma only in #customize-bi-buddies. CC Sushma, Sai Anirudh Karre, Zeke Brustkern, and Eoin George in #insights-customize-squad. Do not CC Trent.",
+    "template": "Hello Team,\n\nOur upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.\nDeployment notes and the deployment ticket are below for reference:\n\nDeployment notes download: [{filename}]({sharepoint_download_url})\nSharePoint folder: [Open {month_folder}]({sharepoint_folder_url})\nService Desk: [{shipit_key}]({shipit_url})\n\nThanks!{cc_line}",
+    "notes": "Do not post on generate, upload, or SHIPIT. Post only when the user later asks to notify Slack. Training and format checks are not a send."
   }
 }

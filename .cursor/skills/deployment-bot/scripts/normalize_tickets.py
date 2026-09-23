@@ -11,6 +11,7 @@ CLIENT_SPLIT = re.compile(r"\s+[-–:]\s+")
 
 # Analyze (AN) tickets ship to every Analyze-based client, tracked as one name.
 ANALYZE_CLIENT = "Glofox Analyze"
+DEFAULT_PROJECT_TYPES = {"AN": "Analyze", "PIC": "Custom"}
 
 # Release size categories. Every ticket lands in exactly one bucket so the
 # counts in the doc add up to the ticket count.
@@ -100,13 +101,65 @@ def tidy_spacing(text: str) -> str:
     return text
 
 
-def classify_type(project_key: str) -> str:
+def configured_project_types(config: dict[str, Any] | None = None) -> dict[str, str]:
+    """Return project-key -> ticket-type mapping for the active product."""
+    config = config or {}
+    scope = config.get("jira_project_scope") or {}
+    active = scope.get("active_product") or "glofox"
+    product = (scope.get("products") or {}).get(active) or {}
+    projects = product.get("projects") or {}
+    if projects:
+        return {
+            key.upper(): (
+                value.get("type", key) if isinstance(value, dict) else str(value)
+            )
+            for key, value in projects.items()
+        }
+
+    analyze = config.get("analyze_projects") or ["AN"]
+    custom = config.get("custom_projects") or ["PIC"]
+    return {
+        **{key.upper(): "Analyze" for key in analyze},
+        **{key.upper(): "Custom" for key in custom},
+    }
+
+
+def issue_project_key(issue: dict[str, Any]) -> str:
+    fields = issue.get("fields") or {}
+    key = issue.get("key") or ""
+    return (
+        ((fields.get("project") or {}).get("key") or key.split("-")[0])
+        .upper()
+        .strip()
+    )
+
+
+def assert_supported_projects(
+    issues: list[dict[str, Any]],
+    project_types: dict[str, str],
+) -> None:
+    unsupported = sorted(
+        {
+            issue_project_key(issue)
+            for issue in issues
+            if issue_project_key(issue) not in project_types
+        }
+    )
+    if unsupported:
+        allowed = ", ".join(sorted(project_types))
+        found = ", ".join(unsupported)
+        raise ValueError(
+            f"Unsupported Jira project(s) for this deployment: {found}. "
+            f"Allowed projects: {allowed}."
+        )
+
+
+def classify_type(
+    project_key: str,
+    project_types: dict[str, str] | None = None,
+) -> str:
     key = (project_key or "").upper()
-    if key == "AN":
-        return "Analyze"
-    if key == "PIC":
-        return "Custom"
-    return "Other"
+    return (project_types or DEFAULT_PROJECT_TYPES).get(key, "Other")
 
 
 def split_segments(text: str) -> list[str]:
@@ -273,11 +326,12 @@ def normalize_issue(
     issue: dict[str, Any],
     site: str = "https://abcfinancial.atlassian.net",
     categories: dict[str, Any] | None = None,
+    project_types: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     fields = issue.get("fields") or {}
     key = issue.get("key") or ""
     project = (fields.get("project") or {}).get("key") or key.split("-")[0]
-    typ = classify_type(project)
+    typ = classify_type(project, project_types)
     summary = fields.get("summary") or ""
     client, report, _ = split_client_report_desc(summary, typ)
     desc = description_text(summary, typ)
@@ -306,6 +360,15 @@ def normalize_issue(
 
 
 def normalize_issues(
-    issues: list[dict[str, Any]], categories: dict[str, Any] | None = None
+    issues: list[dict[str, Any]],
+    categories: dict[str, Any] | None = None,
+    project_types: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    return [normalize_issue(i, categories=categories) for i in issues]
+    return [
+        normalize_issue(
+            i,
+            categories=categories,
+            project_types=project_types,
+        )
+        for i in issues
+    ]

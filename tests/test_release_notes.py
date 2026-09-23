@@ -15,7 +15,14 @@ SCRIPTS = (
 sys.path.insert(0, str(SCRIPTS))
 
 from generate_release_notes import build_document  # noqa: E402
+from check_pr_merge_status import (  # noqa: E402
+    assert_all_prs_merged,
+    check_issues,
+    parse_pr_status,
+)
 from normalize_tickets import (  # noqa: E402
+    assert_supported_projects,
+    configured_project_types,
     highlight_line,
     normalize_issue,
     split_client_report_desc,
@@ -172,6 +179,23 @@ class ReportNameExtractionTests(unittest.TestCase):
         self.assertEqual(description, "optimization")
 
 
+class JiraProjectScopeTests(unittest.TestCase):
+    def test_live_scope_maps_glofox_boards(self):
+        skill = Path(__file__).parents[1] / ".cursor" / "skills" / "deployment-bot"
+        config = json.loads((skill / "config.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            configured_project_types(config),
+            {"AN": "Analyze", "PIC": "Custom"},
+        )
+
+    def test_unknown_project_stops_processing(self):
+        with self.assertRaisesRegex(ValueError, "IGN"):
+            assert_supported_projects(
+                [_issue("IGN-1", "IGN", "Ignite - example")],
+                {"AN": "Analyze", "PIC": "Custom"},
+            )
+
+
 class DocumentLayoutTests(unittest.TestCase):
     def _payload(self):
         url = "https://abcfinancial.atlassian.net/browse/AN-5359"
@@ -180,14 +204,14 @@ class DocumentLayoutTests(unittest.TestCase):
             "release_date": "05-August-2026",
             "meta": {
                 "development_team": "Customize BI Team",
-                "release_owner": "",
+                "deployment_owner": "",
                 "senior_manager": "Senior Manager",
                 "director": "Must Not Render",
                 "svp": "SVP",
                 "environment": "Production",
             },
             "narratives": {
-                "release_summary": "This release delivers 1 new report for Glofox Analyze."
+                "deployment_summary": "This deployment delivers 1 new report for Glofox Analyze."
             },
             "category_counts": [
                 {"key": "new_reports", "label": "New Reports", "count": 1},
@@ -229,7 +253,9 @@ class DocumentLayoutTests(unittest.TestCase):
         doc = build_document(self._payload())
         headings_and_text = [p.text for p in doc.paragraphs if p.text]
 
-        self.assertIn("Release Summary:", headings_and_text)
+        self.assertEqual(headings_and_text[0], "Deployment notes")
+        self.assertNotIn("Release Notes", headings_and_text)
+        self.assertIn("Deployment Summary:", headings_and_text)
         self.assertIn("Reports / Dashboards Delivered:", headings_and_text)
         self.assertIn("Affected Clients:", headings_and_text)
         self.assertIn("Deployment Details:", headings_and_text)
@@ -238,6 +264,15 @@ class DocumentLayoutTests(unittest.TestCase):
         self.assertIn("Tickets Excluded from Deployment:", headings_and_text)
 
         all_text = " ".join(headings_and_text)
+        all_table_text = " ".join(
+            cell.text
+            for table in doc.tables
+            for row in table.rows
+            for cell in row.cells
+        )
+        self.assertIn("Deployment Date", all_table_text)
+        self.assertIn("Deployment Owner", all_table_text)
+        self.assertNotIn("Release", f"{all_text} {all_table_text}")
         for removed in (
             "Key Highlights",
             "Dashboards / Reports:",
@@ -282,7 +317,7 @@ class SharePointUploadTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            src = root / "Release Notes 2026.3.09.16.docx"
+            src = root / "Deployment Notes 2026.3.09.16.docx"
             src.write_bytes(b"docx-bytes")
             dest = upload_docx(
                 src,
@@ -310,6 +345,81 @@ class SharePointUploadTests(unittest.TestCase):
         self.assertEqual(month_folder_from_version("2026.3.09.16"), "2026-09")
         self.assertEqual(month_folder_from_version("2026.3.08.12"), "2026-08")
 
+    def test_notes_docx_name(self):
+        from upload_to_sharepoint import notes_docx_name
+
+        self.assertEqual(
+            notes_docx_name("2026.3.09.23", {"docx_prefix": "Deployment Notes"}),
+            "Deployment Notes 2026.3.09.23.docx",
+        )
+
+    def test_slack_has_download_and_exact_folder_urls(self):
+        from upload_to_sharepoint import (
+            sharepoint_file_url,
+            sharepoint_month_folder_url,
+        )
+
+        skill = Path(__file__).parents[1] / ".cursor" / "skills" / "deployment-bot"
+        config = json.loads((skill / "config.json").read_text(encoding="utf-8"))
+        sharepoint = config["sharepoint"]
+        download = sharepoint_file_url(
+            sharepoint,
+            "2026.3.09.23",
+            download=True,
+        )
+        folder = sharepoint_month_folder_url(sharepoint, "2026.3.09.23")
+
+        self.assertIn("Deployment%20Notes%202026.3.09.23.docx", download)
+        self.assertTrue(download.endswith("?download=1"))
+        self.assertIn("Forms/AllItems.aspx?id=", folder)
+        self.assertIn("2026-09", folder)
+
+
+class PullRequestGateTests(unittest.TestCase):
+    def _development_field(self, state, state_count, count):
+        return (
+            "{pullrequest={dataType=pullrequest, "
+            f"state={state}, stateCount={state_count}"
+            '}, json={"cachedValue":{"summary":{"pullrequest":{"overall":'
+            f'{{"count":{count}'
+        )
+
+    def test_all_attached_prs_must_be_merged(self):
+        value = self._development_field("MERGED", 2, 2)
+        self.assertEqual(parse_pr_status(value)["status"], "merged")
+        assert_all_prs_merged(
+            [{"key": "PIC-1", "fields": {"customfield_10500": value}}]
+        )
+
+    def test_open_pr_blocks_generation(self):
+        value = self._development_field("OPEN", 1, 2)
+        blockers = check_issues(
+            [{"key": "PIC-2", "fields": {"customfield_10500": value}}]
+        )
+        self.assertEqual(blockers[0]["status"], "not_merged")
+        with self.assertRaisesRegex(ValueError, "PIC-2"):
+            assert_all_prs_merged(
+                [{"key": "PIC-2", "fields": {"customfield_10500": value}}]
+            )
+
+    def test_missing_pr_blocks_generation(self):
+        blockers = check_issues([{"key": "AN-1", "fields": {}}])
+        self.assertEqual(blockers[0]["status"], "missing")
+        with self.assertRaisesRegex(ValueError, "no attached PR found"):
+            assert_all_prs_merged([{"key": "AN-1", "fields": {}}])
+
+    def test_live_config_enables_the_gate(self):
+        skill = Path(__file__).parents[1] / ".cursor" / "skills" / "deployment-bot"
+        config = json.loads((skill / "config.json").read_text(encoding="utf-8"))
+        with self.assertRaisesRegex(ValueError, "AN-2"):
+            assert_all_prs_merged([{"key": "AN-2", "fields": {}}], config)
+
+    def test_gate_can_be_disabled_by_config(self):
+        assert_all_prs_merged(
+            [{"key": "AN-3", "fields": {}}],
+            {"pull_request_gate": {"enabled": False}},
+        )
+
 
 class ShipitChangeRequestTests(unittest.TestCase):
     def test_payload_for_2026_3_09_16(self):
@@ -326,8 +436,15 @@ class ShipitChangeRequestTests(unittest.TestCase):
         self.assertIsNone(payload["assignee_account_id"])
         self.assertEqual(payload["link"]["inward_keys"], ["PIC-5966"])
         self.assertIn("PIC-5966", payload["description"])
-        self.assertIn("Release Notes 2026.3.09.16.docx", payload["description"])
+        self.assertIn("Deployment Notes 2026.3.09.16.docx", payload["description"])
+        self.assertIn("Deployment notes:", payload["description"])
+        self.assertEqual(
+            payload["transition_after_create"]["status_name"], "Review Ready"
+        )
+        self.assertEqual(payload["transition_after_create"]["status_id"], "14545")
         self.assertIn("deployment%20bot%20release%20notes/2026-09", payload["sharepoint_url"])
+        self.assertTrue(payload["sharepoint_download_url"].endswith("?download=1"))
+        self.assertIn("Forms/AllItems.aspx?id=", payload["sharepoint_folder_url"])
         fields = payload["additional_fields"]
         self.assertEqual(fields["customfield_11757"], {"value": "Normal"})
         self.assertEqual(fields["customfield_11758"], {"value": "Medium"})
@@ -336,6 +453,31 @@ class ShipitChangeRequestTests(unittest.TestCase):
             fields["customfield_11794"],
             [{"groupId": "7e6deb19-8ce4-46c8-88cd-a695a554e5f8"}],
         )
+
+    def test_optional_reporter_and_assignee_overrides(self):
+        from build_shipit_change_request import build_payload
+
+        skill = Path(__file__).parents[1] / ".cursor" / "skills" / "deployment-bot"
+        config = json.loads((skill / "config.json").read_text(encoding="utf-8"))
+        raw = json.loads((skill / "jira_2026.3.09.16.json").read_text(encoding="utf-8"))
+        payload = build_payload(
+            raw["issues"],
+            "2026.3.09.16",
+            config,
+            reporter_account_id="reporter-id",
+            reporter_name="Reporter Person",
+            assignee_account_id="assignee-id",
+            assignee_name="Deployment Owner",
+        )
+
+        self.assertEqual(payload["assignee_account_id"], "assignee-id")
+        self.assertFalse(payload["leave_assignee_blank"])
+        self.assertEqual(
+            payload["additional_fields"]["reporter"],
+            {"accountId": "reporter-id"},
+        )
+        self.assertEqual(payload["people"]["reporter"]["name"], "Reporter Person")
+        self.assertEqual(payload["people"]["assignee"]["name"], "Deployment Owner")
 
 
 if __name__ == "__main__":
