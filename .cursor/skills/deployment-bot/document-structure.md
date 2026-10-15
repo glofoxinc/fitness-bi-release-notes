@@ -110,3 +110,16 @@ Example: `2026.3.08.05` → `05-August-2026`
 - `AN-*` → Type `Analyze`, Client `Glofox Analyze`
 - `PIC-*` → Type `Custom`, Client from summary prefix before ` - ` / `:` / first hyphenated client token
 - Special case: summary starts with `Analyze -` → still Analyze / `Glofox Analyze`; report is text after prefix
+
+## Client-facing Release Notes
+
+Written by `generate_client_release_notes.py` in the same build as the deployment notes. File name: `Release Notes <VERSION>.docx`.
+
+- Title: `Release Notes`
+- Header: Release status (`Scheduled` before deploy, `Deployed` after), Version, Release date, Release cycle
+- Release summary counts
+- Included changes table; the issue key is a Jira hyperlink
+- One section per client: What changed for users, Implementation for that client, Expected impact, Validation
+- References: `Jira: <key>` as a link, then `Fix version: <version>` as a link
+- No format-reference line and no draft banner
+

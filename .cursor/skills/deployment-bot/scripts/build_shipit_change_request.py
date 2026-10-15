@@ -20,6 +20,7 @@ from normalize_tickets import (
 )
 from upload_to_sharepoint import (
     notes_docx_name,
+    release_notes_docx_name,
     sharepoint_file_url,
     sharepoint_month_folder_url,
 )
@@ -140,6 +141,13 @@ def build_payload(
     )
     notes_folder_url = sharepoint_month_folder_url(sharepoint, fix_version)
     notes_name = notes_docx_name(fix_version, sharepoint)
+    release_name = release_notes_docx_name(fix_version, sharepoint)
+    release_url = sharepoint_file_url(
+        sharepoint, fix_version, filename=release_name
+    )
+    release_download_url = sharepoint_file_url(
+        sharepoint, fix_version, filename=release_name, download=True
+    )
     clients = list(dict.fromkeys(r["client"] for r in rows))
     reports = list(dict.fromkeys(r["report"] for r in rows))
     keys = [r["key"] for r in rows]
@@ -188,6 +196,7 @@ def build_payload(
         f"{ticket_lines}\n"
         f"* Planned window on this request: {window['label']}\n"
         f"* Deployment notes: [{notes_name}]({notes_url})\n"
+        f"* Release notes: [{release_name}]({release_url})\n"
     )
     if test_ticket:
         description += (
@@ -364,6 +373,12 @@ def build_payload(
             adf_link(notes_name, notes_url),
         )
     )
+    test_plan_nodes.append(
+        adf_para(
+            adf_text("Release notes: "),
+            adf_link(release_name, release_url),
+        )
+    )
 
     reason = "Production Deployment"
     if test_ticket:
@@ -461,6 +476,9 @@ def build_payload(
         "sharepoint_url": notes_url,
         "sharepoint_download_url": notes_download_url,
         "sharepoint_folder_url": notes_folder_url,
+        "sharepoint_release_notes_url": release_url,
+        "sharepoint_release_notes_download_url": release_download_url,
+        "release_notes_filename": release_name,
         "jira_site": site,
     }
 

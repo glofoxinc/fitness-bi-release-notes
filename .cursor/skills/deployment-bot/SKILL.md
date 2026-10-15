@@ -4,13 +4,15 @@ description: >-
   Deployment Bot — generates Fitness BI / Customize BI deployment notes
   from Jira Fix Version tickets, writes a Word document matching the team
   template, and in the same run uploads it to SharePoint (deployment bot
-  release notes / YYYY-MM) and creates the SHIPIT Change Request in Review
-  Ready. Posts Slack notifications only when the user later asks to notify
-  Slack. Use when the user asks for Deployment Bot, deployment notes, release
-  notes, Fix Version deployment notes, pre-deploy release doc, create Jira
-  ticket / SHIPIT change request, Slack notify, or automate deployment notes
-  from Jira (AN/PIC). Always generate, upload, and create SHIPIT unless the
-  user explicitly says not to upload or not to create the ticket.
+  release notes / YYYY-MM) together with client-facing Release Notes, and
+  creates the SHIPIT Change Request in Review Ready. The ticket and the later
+  Slack message include both documents. Posts Slack notifications only when
+  the user later asks to notify Slack. Use when the user asks for Deployment
+  Bot, deployment notes, release notes, Fix Version deployment notes,
+  pre-deploy release doc, create Jira ticket / SHIPIT change request, Slack
+  notify, or automate deployment notes from Jira (AN/PIC). Always generate,
+  upload, and create SHIPIT unless the user explicitly says not to upload or
+  not to create the ticket.
 ---
 
 # Deployment Bot
@@ -23,10 +25,10 @@ The Word document must be produced **only** by the scripts in `scripts/`. The ag
 - The values for Deployment Summary, Reports / Dashboards Delivered, clients, ticket rows, and category counts come **verbatim** from the scripts. Do not compose these yourself.
 - Do NOT open the `.docx` and edit text by hand. If something looks wrong, fix the script, not the document.
 - Your only judgement calls: which Fix Version, and which tickets to omit when the user says to remove them.
-- **Lineage is fixed:** check PR merge state → generate deployment notes → upload to SharePoint → create the SHIPIT ticket in Review Ready. Then **stop**. Slack is a later job.
-- **Generate + upload + SHIPIT is one job.** A request to generate deployment notes (or the older phrase “release notes”) always includes SharePoint upload **and** the SHIPIT Change Request in the **same** turn. Do not stop after the `.docx`. Do not ask whether to upload or create the ticket. Do not wait for a second prompt. Skip upload only if the user explicitly says not to upload. Skip SHIPIT only if the user explicitly says not to create the ticket.
+- **Lineage is fixed:** check PR merge state → generate deployment notes and client-facing release notes → upload both to SharePoint → create the SHIPIT ticket in Review Ready, with both document links. Then **stop**. Slack is a later job, and that message includes both documents.
+- **Generate + upload + SHIPIT is one job.** A request to generate deployment notes (or the older phrase “release notes”) always includes both Word files, SharePoint upload of both, **and** the SHIPIT Change Request in the **same** turn. Do not stop after the deployment `.docx`. Do not ask whether to upload or create the ticket. Do not wait for a second prompt. Skip upload only if the user explicitly says not to upload. Skip SHIPIT only if the user explicitly says not to create the ticket.
 - **Merged PRs are a hard gate.** Before generating any document, every included Fix Version ticket must have at least one attached PR and all attached PRs must be merged. If a ticket has no PR or any PR is not merged, stop before creating files, uploading, creating SHIPIT, or notifying Slack. List the blocking ticket keys and states for the user.
-- **After notes and ticket exist, say the PR result out loud.** In the same reply, list each included ticket key and that its PR is merged. Do not bury this in a SharePoint path. Example: “PR check passed. AN-5526, AN-5527, and PIC-6085 each have a merged PR.” Then give the SharePoint location and the SHIPIT URL. Remind the user that Slack has not been sent.
+- **After notes and ticket exist, say the PR result out loud.** In the same reply, list each included ticket key and that its PR is merged. Do not bury this in a SharePoint path. Example: “PR check passed. AN-5526, AN-5527, and PIC-6085 each have a merged PR.” Then give both SharePoint file names and the SHIPIT URL. Remind the user that Slack has not been sent.
 - **Slack notify is a separate job.** Do not post to Slack after generate, upload, or SHIPIT. Post only when the user later says to notify Slack / send the message. **Never post to `#insights-customize-squad` or `#customize-bi-buddies` unless the user explicitly asked to notify Slack.** Training and format checks are not a send.
 - If you think output should change, tell the user and change the script — never quietly rewrite the text in the doc.
 
@@ -42,10 +44,11 @@ For a given **Fix Version** (deployment date, e.g. `2026.3.08.12`):
 2. Verify every included ticket has only merged PRs
 3. Classify Analyze vs Customize and extract client/report details
 4. Generate a **pre-deployment** Word deployment notes doc (team fills testing + deployment IDs later)
-5. Save locally **and** upload to SharePoint in the same run: `deployment bot release notes` / month folder (`YYYY-MM` from the Fix Version) / `Deployment Notes <VERSION>.docx`
-6. Create the SHIPIT **Change Request** for that Fix Version (same layout as SHIPIT-17191 / approved test SHIPIT-17289), apply explicitly requested reporter/assignee names, and move it to **Review Ready**
-7. Tell the user the PR check passed (each included ticket, merged) plus the notes location and SHIPIT URL. Do not send Slack yet.
-8. When asked later, notify Slack in `#insights-customize-squad` (CC Sushma, Sai Anirudh Karre, Zeke Brustkern, and Eoin George) and `#customize-bi-buddies` (CC Sushma only)
+5. Generate the client-facing **Release Notes** Word doc in the same run (grouped by client; ticket keys are links)
+6. Save both locally **and** upload both to SharePoint: `deployment bot release notes` / month folder (`YYYY-MM`) / `Deployment Notes <VERSION>.docx` and `Release Notes <VERSION>.docx`
+7. Create the SHIPIT **Change Request** for that Fix Version, include both document links, apply explicitly requested reporter/assignee names, and move it to **Review Ready**
+8. Tell the user the PR check passed (each included ticket, merged) plus both file locations and the SHIPIT URL. Do not send Slack yet.
+9. When asked later, notify Slack in `#insights-customize-squad` (CC Sushma, Sai Anirudh Karre, Zeke Brustkern, and Eoin George) and `#customize-bi-buddies` (CC Sushma only). The message includes both documents and the ticket.
 
 ## When to run
 
@@ -123,9 +126,9 @@ Deployment notes progress:
 - [ ] 3. Validate every ticket belongs to the configured Glofox projects (AN/PIC)
 - [ ] 4. List fetched ticket keys and verify all attached PRs are merged
 - [ ] 5. Normalize ticket rows (type/client/report)
-- [ ] 6. Generate Word doc via script
+- [ ] 6. Generate both Word docs via script (deployment notes and client-facing release notes)
 - [ ] 7. Spot-check against sample quality
-- [ ] 8. Save locally AND upload to SharePoint (`deployment bot release notes` / `YYYY-MM`) before telling the user you are done
+- [ ] 8. Save both locally AND upload both to SharePoint (`deployment bot release notes` / `YYYY-MM`) before telling the user you are done
 - [ ] 9. Create SHIPIT Change Request (unless the user said not to), apply requested reporter/assignee, then move it to Review Ready
 - [ ] 10. Tell the user the PR check passed for each included ticket, plus notes location and SHIPIT URL. Do not send Slack yet.
 - [ ] 11. Notify Slack only when the user later explicitly asked — both live channels; never post otherwise
@@ -214,23 +217,25 @@ The deployment is sized by **four categories only**: New Reports, Customizations
 
 1. Save the raw Jira search result (the object with `issues[]`) to a JSON file, e.g. `jira_<VERSION>.json`.
 2. If the user asked to remove tickets, delete those issues from that JSON's `issues[]` **before** running (that is the only allowed manual step). Do not touch anything else.
-3. Run the canonical builder — it normalizes tickets and writes the `.docx`:
+3. Run the canonical builder — it writes the deployment notes `.docx` and, beside it, `Release Notes <VERSION>.docx`:
 
 ```bash
 py -3 scripts/build_from_jira_json.py --jira-json <jira_VERSION.json> --fix-version <VERSION> --config config.json --output-json "<output_dir>/Deployment Notes <VERSION>.pre.json" --output-docx "<output_dir>/Deployment Notes <VERSION>.docx"
 ```
 
-Use the resulting `.docx` **exactly as produced**. Never edit its text by hand. Scripts:
+Use both resulting `.docx` files **exactly as produced**. Never edit their text by hand. Scripts:
 [scripts/build_from_jira_json.py](scripts/build_from_jira_json.py),
 [scripts/normalize_tickets.py](scripts/normalize_tickets.py),
 [scripts/generate_release_notes.py](scripts/generate_release_notes.py),
+[scripts/generate_client_release_notes.py](scripts/generate_client_release_notes.py),
 [scripts/upload_to_sharepoint.py](scripts/upload_to_sharepoint.py),
 [scripts/build_shipit_change_request.py](scripts/build_shipit_change_request.py).
 
 ### Step 6 — Quality spot-check
 
 Before handing to user:
-- Document heading is `Deployment notes` (not `Release Notes`)
+- Document heading is `Deployment notes` on the deployment file
+- The separate client-facing file heading is `Release Notes`
 - Header labels are `Deployment Date` and `Deployment Owner`
 - `Deployment Summary` is the only summary section and its sentence says “This deployment…”
 - Ticket count in Ticket Details matches Jira fetch
@@ -246,23 +251,25 @@ Before handing to user:
 - There is no Director field, separate Key Highlights, separate Dashboards / Reports, Change Details, Sanity Checklist, or Screenshots heading
 - Excluded table empty unless user explicitly asked to list removed tickets there
 - Filename: `Deployment Notes <VERSION>.docx`
+- Client-facing file: `Release Notes <VERSION>.docx`, title `Release Notes`, one section per client, ticket keys are hyperlinks, References ends with `Fix version`, and there is no format-reference line
 
 ### Step 7 — Deliver and upload to SharePoint (same prompt — always)
 
 This step is part of generate, not a follow-up. Finish it before the reply.
 
-1. Keep the local `.docx` path from Step 4.
-2. Upload is **required**. Do not leave the file only in Downloads. Do not ask the user to upload. Skip only if they said not to upload.
+1. Keep both local `.docx` paths from Step 5.
+2. Upload is **required for both files**. Do not leave either file only in Downloads. Do not ask the user to upload. Skip only if they said not to upload.
 3. Read `config.json` → `sharepoint`. Layout is always:
-   existing team library / `deployment bot release notes` / `YYYY-MM` / `Deployment Notes <VERSION>.docx`
+   existing team library / `deployment bot release notes` / `YYYY-MM` / `Deployment Notes <VERSION>.docx` and `Release Notes <VERSION>.docx`
    Month folder comes from the Fix Version (`2026.3.09.16` → `2026-09`). Create the root folder and the month folder if they do not exist. Do not upload into `test deployment bot`. Keep using the existing SharePoint folder `deployment bot release notes`; only the document name and heading changed.
    `upload_method` decides the route:
    - `browser` (current): team library is **not** synced to File Explorer, so upload through the SharePoint web UI with the Playwright MCP browser.
    - `sync`: library is synced; `local_sync_path` holds the local folder.
-4. Stage the file first — Playwright can only read files under the repo root:
+4. Stage each file — Playwright can only read files under the repo root. Run this once per file:
 
 ```bash
 py -3 scripts/upload_to_sharepoint.py --docx "<output_dir>/Deployment Notes <VERSION>.docx" --config config.json --fix-version <VERSION>
+py -3 scripts/upload_to_sharepoint.py --docx "<output_dir>/Release Notes <VERSION>.docx" --config config.json --fix-version <VERSION>
 ```
 
 With `upload_method: browser` this copies the `.docx` into `sharepoint.staging_dir` and prints the staged path plus `root_folder` and `month_folder`. With `sync` it copies into the synced library folder and you are done.
@@ -270,10 +277,10 @@ With `upload_method: browser` this copies the `.docx` into `sharepoint.staging_d
 5. Browser upload steps (Playwright MCP), starting from `sharepoint.folder_url`:
    - Ensure folder `deployment bot release notes` exists (Create or upload → Folder). Open it.
    - Ensure the month folder (`YYYY-MM`) exists inside it. Open it.
-   - Click **Create or upload → Files upload**, then `browser_file_upload` with the staged path from Step 4.
-   - Confirm via `browser_find` on the version string; SharePoint shows `Uploaded <file> to <month folder>`.
+   - Click **Create or upload → Files upload**, then `browser_file_upload` with each staged path.
+   - Confirm both files via `browser_find` on the version string; SharePoint shows `Uploaded <file> to <month folder>`.
    - If the page lands on a Microsoft sign-in screen, ask the user to sign in to that browser window — never enter their password. A signed-in Playwright session does **not** need a new login on every run; only when that session expires.
-6. Return the local path, the SharePoint folder URL, and the confirmed file name.
+6. Return both local paths, the SharePoint folder URL, and both confirmed file names.
 7. Remind the user what they still fill post-deploy.
 
 ### Step 8 — Create SHIPIT Change Request (same generate run)
@@ -328,7 +335,7 @@ Add `--test-ticket` only when the user asked for a test ticket. That prefixes su
 
 8. In the user-facing reply after notes + ticket, include all of:
    - **PR check passed** and each included ticket key with merged PRs
-   - SharePoint file name and folder
+   - SharePoint file names for deployment notes and release notes, and the folder
    - SHIPIT URL, status **Review Ready**, reporter, and assignee (or Unassigned)
    - That Slack has **not** been sent, and they should ask when they want the squad message posted
 
@@ -355,9 +362,10 @@ Message body (same wording in both channels except the CC line):
 Hello Team,
 
 Our upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.
-Deployment notes and the deployment ticket are below for reference:
+Deployment notes, release notes, and the deployment ticket are below for reference:
 
 Deployment notes download: [Deployment Notes {VERSION}.docx]({sharepoint_download_url})
+Release notes download: [Release Notes {VERSION}.docx]({release_notes_download_url})
 SharePoint folder: [Open {YYYY-MM}]({sharepoint_folder_url})
 Service Desk: [{SHIPIT-key}](https://abcfinancial.atlassian.net/browse/{SHIPIT-key})
 
@@ -369,9 +377,10 @@ Append a CC line per channel:
 - `#insights-customize-squad`: `CC: <@U08LDAQ7SDV> <@U0BSG4ABZC0> <@U083R8TP1J9> <@U01H0UL5JGP>`
 - `#customize-bi-buddies`: `CC: <@U08LDAQ7SDV>`
 
-Date comes from the Fix Version (`2026.3.09.16` → Wednesday, September 16, 2026). Include both SharePoint links:
+Date comes from the Fix Version (`2026.3.09.16` → Wednesday, September 16, 2026). Include both document downloads and the folder link:
 
 - `sharepoint_download_url`: direct `Deployment Notes <VERSION>.docx` URL with `?download=1`
+- `release_notes_download_url`: direct `Release Notes <VERSION>.docx` URL with `?download=1` (`sharepoint_release_notes_download_url` on the SHIPIT payload)
 - `sharepoint_folder_url`: SharePoint `Forms/AllItems.aspx` view whose `id` points to the exact `deployment bot release notes / YYYY-MM` folder
 
 Do not reuse the download URL for the folder link. Confirm the uploaded file exists before sending. SHIPIT key is the ticket created (or the live ticket the user named). All links must be markdown links, not plain URLs.

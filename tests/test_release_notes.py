@@ -373,6 +373,35 @@ class SharePointUploadTests(unittest.TestCase):
         self.assertTrue(download.endswith("?download=1"))
         self.assertIn("Forms/AllItems.aspx?id=", folder)
         self.assertIn("2026-09", folder)
+        self.assertIn("Release notes download", config["slack"]["template"])
+        self.assertIn("{release_notes_download_url}", config["slack"]["template"])
+
+
+class ClientReleaseNotesTests(unittest.TestCase):
+    def test_release_notes_follow_the_approved_shape(self):
+        from build_from_jira_json import build_payload
+        from generate_client_release_notes import build_client_release_notes
+
+        skill = Path(__file__).parents[1] / ".cursor" / "skills" / "deployment-bot"
+        config = json.loads((skill / "config.json").read_text(encoding="utf-8"))
+        raw = json.loads((skill / "jira_2026.3.09.16.json").read_text(encoding="utf-8"))
+        payload = build_payload("2026.3.09.16", raw["issues"], config)
+        document = build_client_release_notes(payload, raw["issues"])
+        paragraphs = [paragraph.text for paragraph in document.paragraphs]
+        joined = "\n".join(paragraphs)
+        self.assertEqual(paragraphs[0], "Release Notes")
+        self.assertIn("Xtreme Fitness", joined)
+        self.assertIn("Implementation for Xtreme Fitness", joined)
+        self.assertIn("Fix version: 2026.3.09.16", joined)
+        self.assertNotIn("Format reference", joined)
+        self.assertNotIn("Jira filter", joined)
+        self.assertNotIn("DRAFT", joined)
+        links = []
+        for paragraph in document.paragraphs:
+            links.extend(paragraph._p.xpath(".//w:hyperlink"))
+        for table in document.tables:
+            links.extend(table._tbl.xpath(".//w:hyperlink"))
+        self.assertGreaterEqual(len(links), 2)
 
 
 class PullRequestGateTests(unittest.TestCase):
@@ -437,7 +466,9 @@ class ShipitChangeRequestTests(unittest.TestCase):
         self.assertEqual(payload["link"]["inward_keys"], ["PIC-5966"])
         self.assertIn("PIC-5966", payload["description"])
         self.assertIn("Deployment Notes 2026.3.09.16.docx", payload["description"])
+        self.assertIn("Release Notes 2026.3.09.16.docx", payload["description"])
         self.assertIn("Deployment notes:", payload["description"])
+        self.assertIn("Release notes:", payload["description"])
         self.assertEqual(
             payload["transition_after_create"]["status_name"], "Review Ready"
         )
@@ -445,6 +476,8 @@ class ShipitChangeRequestTests(unittest.TestCase):
         self.assertIn("deployment%20bot%20release%20notes/2026-09", payload["sharepoint_url"])
         self.assertTrue(payload["sharepoint_download_url"].endswith("?download=1"))
         self.assertIn("Forms/AllItems.aspx?id=", payload["sharepoint_folder_url"])
+        self.assertIn("Release%20Notes%202026.3.09.16.docx", payload["sharepoint_release_notes_url"])
+        self.assertTrue(payload["sharepoint_release_notes_download_url"].endswith("?download=1"))
         fields = payload["additional_fields"]
         self.assertEqual(fields["customfield_11757"], {"value": "Normal"})
         self.assertEqual(fields["customfield_11758"], {"value": "Medium"})

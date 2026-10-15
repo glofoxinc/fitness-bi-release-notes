@@ -13,11 +13,12 @@
 3. Requires every included ticket to have at least one attached PR and all attached PRs merged
 4. Classifies **Analyze** (`AN`) vs **Custom** (`PIC`) and extracts client / report names
 5. Generates a Word deployment notes doc (Cambria; body 12 / headings 14)
-6. Leaves blank for the team to fill after deploy: Deployment IDs, Test by, Sanity answers; Screenshots is heading-only
+6. Generates client-facing **Release Notes** in the same run, grouped by client, with ticket links
+7. Leaves blank for the team to fill after deploy: Deployment IDs, Test by, Sanity answers; Screenshots is heading-only
 
-**Lineage:** check that every included ticket has a merged PR → generate deployment notes → upload to SharePoint → create the SHIPIT ticket in Review Ready. Slack is a later step.
+**Lineage:** check that every included ticket has a merged PR → generate deployment notes and client-facing release notes → upload both to SharePoint → create the SHIPIT ticket in Review Ready, with links to both documents. Slack is a later step, and that message includes both documents.
 
-SharePoint upload and the SHIPIT Change Request happen in the same generate run. The bot then tells you the PR check passed (each ticket, merged), where the notes live, and the SHIPIT URL. It does **not** post to Slack until you ask.
+SharePoint upload and the SHIPIT Change Request happen in the same generate run. Both `Deployment Notes <VERSION>.docx` and `Release Notes <VERSION>.docx` go to `deployment bot release notes` / `YYYY-MM`. The bot then tells you the PR check passed (each ticket, merged), where both files live, and the SHIPIT URL. It does **not** post to Slack until you ask. When you do, the Slack message includes both documents and the ticket.
 
 If any included ticket has no attached PR or a PR that is not merged, the bot pauses before generating, uploading, or creating SHIPIT, and lists the blocking tickets.
 
@@ -115,6 +116,7 @@ Deployment Bot follows `.cursor/skills/deployment-bot/SKILL.md` — that file is
     normalize_tickets.py
     check_pr_merge_status.py
     generate_release_notes.py
+    generate_client_release_notes.py
     build_from_jira_json.py
     upload_to_sharepoint.py
     build_shipit_change_request.py

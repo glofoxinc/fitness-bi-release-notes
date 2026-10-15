@@ -79,6 +79,8 @@
     "folder_name": "deployment bot release notes",
     "docx_title": "Deployment notes",
     "docx_prefix": "Deployment Notes",
+    "release_notes_title": "Release Notes",
+    "release_notes_prefix": "Release Notes",
     "month_folder_pattern": "YYYY-MM",
     "staging_dir": ".playwright-mcp",
     "local_sync_path": "",
@@ -134,7 +136,7 @@
       "eoin_george": "U01H0UL5JGP"
     },
     "cc_rule": "CC Sushma only in #customize-bi-buddies. CC Sushma, Sai Anirudh Karre, Zeke Brustkern, and Eoin George in #insights-customize-squad. Do not CC Trent.",
-    "template": "Hello Team,\n\nOur upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.\nDeployment notes and the deployment ticket are below for reference:\n\nDeployment notes download: [{filename}]({sharepoint_download_url})\nSharePoint folder: [Open {month_folder}]({sharepoint_folder_url})\nService Desk: [{shipit_key}]({shipit_url})\n\nThanks!{cc_line}",
+    "template": "Hello Team,\n\nOur upcoming deployment is scheduled for {weekday}, {month} {day}, {year}.\nDeployment notes, release notes, and the deployment ticket are below for reference:\n\nDeployment notes download: [{filename}]({sharepoint_download_url})\nRelease notes download: [{release_notes_filename}]({release_notes_download_url})\nSharePoint folder: [Open {month_folder}]({sharepoint_folder_url})\nService Desk: [{shipit_key}]({shipit_url})\n\nThanks!{cc_line}",
     "notes": "Do not post on generate, upload, or SHIPIT. Post only when the user later asks to notify Slack. Training and format checks are not a send."
   }
 }

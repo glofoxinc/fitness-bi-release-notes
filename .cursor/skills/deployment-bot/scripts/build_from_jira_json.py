@@ -18,6 +18,8 @@ from normalize_tickets import (  # noqa: E402
     normalize_issues,
 )
 from generate_release_notes import build_document, MONTHS  # noqa: E402
+from generate_client_release_notes import build_client_release_notes  # noqa: E402
+from upload_to_sharepoint import release_notes_docx_name  # noqa: E402
 from check_pr_merge_status import assert_all_prs_merged  # noqa: E402
 
 
@@ -122,6 +124,11 @@ def main():
     parser.add_argument("--config", default=str(ROOT / "config.json"))
     parser.add_argument("--output-json", required=True)
     parser.add_argument("--output-docx", required=True)
+    parser.add_argument(
+        "--output-release-docx",
+        default="",
+        help="Client-facing Release Notes .docx. Defaults beside the deployment notes.",
+    )
     args = parser.parse_args()
 
     raw = json.loads(Path(args.jira_json).read_text(encoding="utf-8"))
@@ -142,6 +149,15 @@ def main():
     out_docx.parent.mkdir(parents=True, exist_ok=True)
     build_document(payload).save(str(out_docx))
 
+    release_name = release_notes_docx_name(args.fix_version, config.get("sharepoint"))
+    release_docx = (
+        Path(args.output_release_docx)
+        if args.output_release_docx
+        else out_docx.with_name(release_name)
+    )
+    release_docx.parent.mkdir(parents=True, exist_ok=True)
+    build_client_release_notes(payload, issues).save(str(release_docx))
+
     unknowns = [t["key"] for t in payload["tickets"] if t.get("client") == "Unknown"]
     unlabeled = [t["key"] for t in payload["tickets"] if not t.get("category_from_label")]
     print(f"Tickets: {len(payload['tickets'])}")
@@ -149,6 +165,7 @@ def main():
         print(f"  {row['label']}: {row['count']}")
     print(f"Wrote JSON: {out_json}")
     print(f"Wrote DOCX: {out_docx}")
+    print(f"Wrote release notes DOCX: {release_docx}")
     if unknowns:
         print("WARNING Unknown clients:", ", ".join(unknowns))
     if unlabeled:

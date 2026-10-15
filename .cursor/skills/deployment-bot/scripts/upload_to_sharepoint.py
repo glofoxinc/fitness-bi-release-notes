@@ -39,6 +39,12 @@ def notes_docx_name(fix_version: str, sharepoint: dict | None = None) -> str:
     return f"{prefix} {fix_version}.docx"
 
 
+def release_notes_docx_name(fix_version: str, sharepoint: dict | None = None) -> str:
+    """Client-facing file name, e.g. Release Notes 2026.3.09.23.docx."""
+    prefix = ((sharepoint or {}).get("release_notes_prefix") or "Release Notes").strip()
+    return f"{prefix} {fix_version}.docx"
+
+
 def relative_upload_folders(sharepoint: dict, fix_version: str) -> tuple[str, str]:
     root_folder = (sharepoint.get("folder_name") or "deployment bot release notes").strip()
     return root_folder, month_folder_from_version(fix_version)
@@ -56,11 +62,13 @@ def sharepoint_file_url(
     fix_version: str,
     *,
     download: bool = False,
+    filename: str | None = None,
 ) -> str:
     """Direct uploaded-file URL, optionally requesting a browser download."""
     root, month = relative_upload_folders(sharepoint, fix_version)
     base = (sharepoint.get("server_relative_folder") or "").rstrip("/")
-    path = f"{base}/{root}/{month}/{notes_docx_name(fix_version, sharepoint)}"
+    name = filename or notes_docx_name(fix_version, sharepoint)
+    path = f"{base}/{root}/{month}/{name}"
     url = f"{_sharepoint_origin(sharepoint)}{quote(path, safe='/')}"
     return f"{url}?download=1" if download else url
 

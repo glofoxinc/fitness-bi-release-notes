@@ -10,12 +10,13 @@
 
 ## 1. Purpose
 
-Every Fitness BI / Customize BI production deployment requires the same four pre-deployment artefacts:
+Every Fitness BI / Customize BI production deployment requires the same pre-deployment artefacts:
 
 1. A deployment notes document in the approved team format
-2. That document stored in the team SharePoint library
-3. A SHIPIT Change Request in Jira for the deployment
-4. A notification to the squad Slack channels
+2. A client-facing release notes document, grouped by client
+3. Both documents stored in the team SharePoint library
+4. A SHIPIT Change Request in Jira for the deployment, linking both documents
+5. A notification to the squad Slack channels, sent only when asked, with both documents and the ticket
 
 Deployment Bot produces all four from a single input — the Jira **Fix Version** — so the developer reviews output instead of assembling it by hand.
 
@@ -26,13 +27,14 @@ Deployment Bot produces all four from a single input — the Jira **Fix Version*
 | # | Capability | Trigger | Output |
 |---|---|---|---|
 | 1 | Generate deployment notes | "Generate deployment notes for `<VERSION>`" | `Deployment Notes <VERSION>.docx` |
-| 2 | Upload to SharePoint | Automatic with capability 1 | File in `deployment bot release notes / YYYY-MM` |
-| 3 | Create SHIPIT Change Request | Automatic with capability 1 | SHIPIT ticket in Review Ready, linked to the work tickets |
-| 4 | Notify Slack | "Notify Slack" (later prompt) | Message in both squad channels |
+| 2 | Generate client-facing release notes | Automatic with capability 1 | `Release Notes <VERSION>.docx` |
+| 3 | Upload to SharePoint | Automatic with capability 1 | Both files in `deployment bot release notes / YYYY-MM` |
+| 4 | Create SHIPIT Change Request | Automatic with capability 1 | SHIPIT ticket in Review Ready, linked to the work tickets and both documents |
+| 5 | Notify Slack | "Notify Slack" (later prompt) | Message in both squad channels, with both documents and the ticket |
 
 **Job boundaries**
 
-- Lineage is fixed: **PR merge check → deployment notes → SharePoint → SHIPIT ticket**. Then stop.
+- Lineage is fixed: **PR merge check → deployment notes and release notes → SharePoint → SHIPIT ticket**. Then stop.
 - Generate, SharePoint upload, and SHIPIT are **one job**. The bot never stops after producing the `.docx`.
 - A merged-PR check is a hard prerequisite. Any missing or non-merged PR pauses the entire combined workflow before output.
 - After notes and the ticket exist, the bot **explicitly reports** that each included ticket’s PR is merged, plus the SharePoint location and SHIPIT URL.
@@ -192,6 +194,7 @@ Our upcoming deployment is scheduled for <weekday>, <month> <day>, <year>.
 Deployment notes and the deployment ticket are below for reference:
 
 Deployment notes download: <Deployment Notes VERSION.docx direct-download link>
+Release notes download: <Release Notes VERSION.docx direct-download link>
 SharePoint folder: <exact deployment bot release notes / YYYY-MM folder link>
 Service Desk: <SHIPIT key link>
 
@@ -294,7 +297,8 @@ Generate deployment notes for 2026.3.09.23, remove AN-5468 from deployment
     build_from_jira_json.py       # Canonical build entry point
     check_pr_merge_status.py      # Hard gate for attached/merged ticket PRs
     normalize_tickets.py          # Classification and field extraction
-    generate_release_notes.py     # Word document rendering
+    generate_release_notes.py     # Word deployment notes rendering
+    generate_client_release_notes.py # Client-facing Release Notes rendering
     upload_to_sharepoint.py       # Upload staging and routing
     build_shipit_change_request.py# Change request payload
   templates/
